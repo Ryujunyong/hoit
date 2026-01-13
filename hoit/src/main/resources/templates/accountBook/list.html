@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layouts/default.html}"
+      layout:fragment="Content">
+<script type="text/javascript" defer>
+	$(function() {
+		$('#USE_AMOUNT').focus();
+	});
+	function fn_write() {
+		let use_amount = $("input[name=USE_AMOUNT]").val();
+		let description = $("input[name=DESCRIPTION]").val();
+		const sendData = {
+				USE_AMOUNT: cleanNumber,
+				DESCRIPTION: description
+		}
+		fetch('/hoit/accountBook/write_submit.do', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;charset=utf-8',
+			},
+			body: JSON.stringify(sendData)
+		})
+		.then(res => {
+			if (!res.ok) {
+				throw new Error('에러 발생!');
+			}
+			location.reload();
+		})
+		.catch(e => {
+			alert('에러'+JSON.stringify(e));
+		});
+	}
+	
+	function fn_chargeCash() {
+	    const sendData = {
+	        CHARGE_AMOUNT: cleanNum,
+	    };
+		fetch('/hoit/accountBook/chargeCash_submit.do', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;charset=utf-8',
+			},
+			body: JSON.stringify(sendData),
+		})
+		.then(res => {
+			if (!res.ok) {
+				throw new Error('에러 발생!');
+			}
+			return res.json();
+		})
+		.then(data => {
+			location.reload();
+		})
+		.catch(e => {
+			alert('에러'+e);
+		});
+	}
+	function fn_editTotalMoney() {
+		fetch('/hoit/accountBook/editTotalMoney_submit.do', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;charset=utf-8',
+			},
+			body: JSON.stringify({
+				ACCOUNT_ID: 'TEST',
+				TOTAL_MONEY: parseInt(data)
+			}),
+		})
+		.then(res => {
+			if (!res.ok) {
+				throw new Error('에러 발생!');
+			}
+		})
+		.catch(e => {
+			alert('에러'+e);
+		});
+	}
+	
+	function fn_chargeCashBack() {
+		fetch('/hoit/accountBook/chargeCashBack_submit.do', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;charset=utf-8',
+			},
+			body: JSON.stringify({
+				CASHBACK_AMOUNT: $('#CASHBACK_AMOUNT').val()
+			}),
+		})
+		.then(res => {
+			if (!res.ok) {
+				throw new Error('에러 발생!');
+			}
+			location.reload();
+		})
+		.catch(e => {
+			alert('에러'+e);
+		});
+	}
+</script>
+<body>
+    <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
+    <div class="container">
+		<ul>
+			<li></li>
+			<li style="height: 60px; margin-top: 20px;">
+				<div class="input-group mb-3" style="display: flex;">
+					<span id="date" style="margin-top: 8px;">&nbsp;&nbsp;</span>
+					<input class="form-control me-2" id="CHARGE_AMOUNT" name="CHARGE_AMOUNT" placeholder="충전금액">
+					<button class="btn btn-outline-info" onclick="fn_chargeCash();">충전</button>&nbsp;&nbsp;
+					<input class="form-control me-2" id="TOTAL_AMOUNT2" style="text-align: right;" disabled>
+					<input class="form-control me-2" id="CASHBACK_AMOUNT" name="CASHBACK_AMOUNT" placeholder="캐시백">
+					<button class="btn btn-outline-info" onclick="fn_chargeCashBack();">충전</button>
+				</div>
+			</li>
+		</ul>
+		<ul>
+			<li style="height: 10%; margin-top: 20xp;">
+				<div class="input-group mb-3" style="display: flex;">
+					<input class="form-control me-2" id="USE_AMOUNT" name="USE_AMOUNT" placeholder="사용금액">
+					<input class="form-control me-2" id="DESCRIPTION" name="DESCRIPTION" placeholder="거래상세내용">
+					<button class="btn btn-outline-info" onclick="fn_write();">등록</button>
+					<h4 style="margin-top: 8px;">&nbsp;&nbsp;남은금액&nbsp;&nbsp;</h4>
+					<input class="form-control me-2" id="TOTAL_AMOUNT" name="TOTAL_AMOUNT" style="text-align: right;" disabled placeholder="남은금액">
+				</div>
+			</li>
+		</ul>
+		<table class="table-container" border="1" style="width: 100%">
+			<thead>
+				<tr style="text-align: center;">
+					<th>사용 금액</th>
+					<th>거래 상세 내용</th>
+					<th>거래 일자</th>
+					<th>작성 일자</th>
+				</tr>
+			</thead>
+			<tbody>
+				<th:block th:if="${!#lists.isEmpty(list)}">
+					<tr style="text-align: center;" th:each="list : ${list}">
+						<td>
+							<ul><li th:text="|${#numbers.formatInteger(list.USE_AMOUNT, 3, 'COMMA')}원|"></li></ul>
+		                </td>
+		                <td>
+			                <ul><li th:text="${list.DESCRIPTION}"></li></ul>
+		                </td>
+		                <td>
+			                <ul><li th:text="${list.ACCOUNT_DATE}"></li></ul>
+		                </td>
+		                <td>
+			                <ul><li th:text="${list.CREATE_DT}"></li></ul>
+		                </td>
+					</tr>
+				</th:block>
+			</tbody>
+		</table>
+	</div>
+	<script th:inline="javascript" defer>
+	const formatter = new Intl.NumberFormat('ko-KR');
+	let current_balance = [[${cm.CURRENT_BALANCE}]];
+	let total_charge = [[${ta.CHARGE_AMOUNT}]];
+	$('#TOTAL_AMOUNT').val(formatter.format(current_balance)+'원');
+	$('#TOTAL_AMOUNT2').val(formatter.format(total_charge)+'원');
+	let cleanNum = 0; // 정수형 입력 값
+	$('#CHARGE_AMOUNT').on('input', function() {
+		let $this = $(this);
+		
+		cleanNum = $this.val().replace(/[^0-9]/g, '');
+		let formatterdNumber = cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		$this.val(formatterdNumber);
+	});
+	const ets = parseInt($('#TOTAL_AMOUNT').val().replaceAll(',', ''), 10) || 0;
+	const ua = parseInt($('#USE_AMOUNT').val(), 10) || 0;
+	let final_result = 0;
+	let numbericVal = 0;
+	let cleanNumber = 0;
+	$('#USE_AMOUNT').on('input', function() {
+		let $this = $(this);
+		
+		cleanNumber = $this.val().replace(/[^0-9]/g, '');
+		if (cleanNumber === '') {
+			$this.val('');
+			return;
+		}
+		let formatterdNumber = cleanNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		
+		$this.val(formatterdNumber);
+		
+		numbericVal = parseInt(cleanNumber, 10);
+		final_result = ets - numbericVal;
+		$('#TOTAL_AMOUNT').val(final_result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')+'원');
+	});
+	/*
+		const formatter = new Intl.NumberFormat('ko-KR', {
+			minimimFractionDigits: 0
+		})
+		let cleanNum = 0;
+		$('#CHARGE_AMOUNT').on('input', function() {
+			let $this = $(this);
+			
+			cleanNum = $this.val().replace(/[^0-9]/g, '');
+			let formatterdNumber = cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+			$this.val(formatterdNumber);
+		});
+		const ets = parseInt($('#TOTAL_AMOUNT').val().replaceAll(',', ''), 10) || 0;
+		const ua = parseInt($('#USE_AMOUNT').val(), 10) || 0;
+		let final_result = 0;
+		let numbericVal = 0;
+		let cleanNumber = 0;
+		$('#USE_AMOUNT').on('input', function() {
+			let $this = $(this);
+			
+			cleanNumber = $this.val().replace(/[^0-9]/g, '');
+			if (cleanNumber === '') {
+				$this.val('');
+				return;
+			}
+			let formatterdNumber = cleanNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+			
+			$this.val(formatterdNumber);
+			
+			numbericVal = parseInt(cleanNumber, 10);
+			final_result = ets - numbericVal;
+			$('#TOTAL_AMOUNT').val(final_result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')+'원');
+		});
+		*/
+		
+		</script>
+</body>
+</html>

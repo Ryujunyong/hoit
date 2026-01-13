@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hoit.community.mapper.CommunityMapper">
+	<select id="selectCommunityList" resultType="map">
+		SELECT commu_cd
+			 , commu_title
+			 , contents
+			 , hit_cnt
+			 , DATE_FORMAT(created_datetime, '%Y-%m-%d %h:%m') AS created_datetime
+			 , creator_id
+			 , DATE_FORMAT(updated_datetime, '%Y-%m-%d %h:%m') AS updated_datetime
+			 , updater_id
+			 , deleted_yn 
+		FROM T_COMMUNITY
+		WHERE deleted_yn = 'N'
+	</select>
+	<select id="getSelectCommunity" resultType="map" parameterType="map">
+	 	SELECT commu_cd
+			 , commu_title
+			 , contents
+			 , hit_cnt
+			 , DATE_FORMAT(created_datetime, '%Y-%m-%d %h:%m') AS created_datetime
+			 , creator_id
+			 , DATE_FORMAT(updated_datetime, '%Y-%m-%d %h:%m') AS updated_datetime
+			 , updater_id
+			 , deleted_yn 
+		FROM T_COMMUNITY
+		WHERE deleted_yn = 'N'
+		AND commu_cd = #{commu_cd};
+	</select>
+	<select id="selectCommunityTotCnt" resultType="map" parameterType="map">
+		SELECT COUNT(*)
+		FROM T_COMMUNITY
+		WHERE deleted_yn = 'N';
+	</select>
+	
+	<insert id="insertCommunity" parameterType="map">
+		INSERT INTO T_COMMUNITY
+		(
+			commu_cd
+		  , commu_title
+		  , contents
+		  , created_datetime
+		  , creator_id
+		) VALUE (
+			#{commu_cd}
+		  , #{commu_title}
+		  , #{contents}
+		  , NOW()
+		  , #{creator_id}
+		);  
+	</insert>
+	<update id="updateCommunity" parameterType="map">
+		UPDATE T_COMMUNITY
+		SET commu_title = #{commu_title}
+		  , contents = #{contents}
+		  , updated_datetime = NOW()
+		  , updater_id = #{updater_id}
+	</update>
+	<update id="communityViewCnt" parameterType="map">
+		UPDATE T_COMMUNITY
+		SET hit_cnt = hit_cnt + 1
+		WHERE commu_cd = #{commu_cd}
+	</update>
+	<delete id="deleteCommunity" parameterType="map">
+		DELETE FROM T_COMMUNITY
+		WHERE commu_cd = #{commu_cd}
+	</delete>
+</mapper>

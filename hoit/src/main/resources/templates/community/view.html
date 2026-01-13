@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{layouts/default.html}"
+      layout:fragment="Content">
+<!-- <head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="/css/main.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+</head> -->
+<body>
+	<ul>
+		<li></li>
+		<li style="border-bottom: none;">
+			<input type="hidden" id="commu_cd" th:value="${view.commu_cd}"/>
+			<div th:text="${view.creator_id}"></div>
+			<span th:text="${view.created_datetime}"></span>
+			<span><img src="/css/eye.svg"/>&nbsp[[${view.hit_cnt}]]</span>
+			<h2 style="margin-top: 15px;" th:text="${view.commu_title}"></h2>
+			<div style="margin-top: 15px;" th:text="${view.contents}"></div>
+		</li>
+	</ul>
+	<button type="button" class="btn btn-outline-dark" onclick="location.href='/hoit/community/list.do'">취소</button>
+	<div style="float: right;">
+		<button class="btn btn-outline-info" type="button" onclick="location.href='/hoit/community/edit.do?commu_cd=${view.commu_cd}'">수정</button>
+		<button class="btn btn-outline-danger" type="button" onclick="fn_delete();">삭제</button>
+	</div>
+	<script type="text/javascript">
+		
+		function fn_delete() {
+			$.ajax({
+				url : "/hoit/community/delete_submit.do",
+				type : 'post',
+				async : false,
+				cache : false,
+				dataType : 'text',
+				data : {
+					commu_cd : "<c:out value='${view.commu_cd}'/>"
+				},
+				success : function( result ){
+					//onPopupAlert("succ","정상적으로 삭제 되었습니다.");
+					location.href = "/hoit/community/list.do";
+				} 
+			});
+		}
+	</script>
+</body>
+</html>

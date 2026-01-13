@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hoit.cashback.mapper.CashBackMapper">
+	<select id="getAssets" resultType="map" parameterType="map">
+		SELECT IFNULL(CAST(SUM(CURRENT_BALANCE) AS CHAR), 'E') AS CURRENT_BALANCE
+		FROM T_CASHBACK
+	</select>
+	
+	<insert id="chargeCashBack" parameterType="map">
+		INSERT INTO T_CASHBACK
+		(
+			CASHBACK_ID
+		  , CASHBACK_AMOUNT
+		  , CREATE_DT
+		) VALUES (
+			#{CASHBACK_ID}
+		  , #{CASHBACK_AMOUNT}
+		  , SYSDATE()
+		);  
+	</insert>
+	<update id="edieAccountBook" parameterType="map">
+		UPDATE T_ACCOUNT_BOOK
+		SET commu_title = #{commu_title}
+		  , contents = #{contents}
+		  , updated_datetime = NOW()
+		  , updater_id = #{updater_id}
+	</update>
+	<delete id="deleteAccountBook" parameterType="map">
+		DELETE FROM T_ACCOUNT_BOOK
+		WHERE ACCOUNT_ID = #{ACCOUNT_ID}
+	</delete>
+</mapper>

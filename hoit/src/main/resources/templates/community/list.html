@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default.html}"
+      layout:fragment="Content">
+<body>
+    <h1 class="text-center" style="margin-top: 50px;">커뮤니티</h1>
+    <div class="container">
+		<a class="btn btn-outline-info" href="/hoit/community/write.do" style="margin-bottom: 15px;">게시글 등록</a>
+		<ul>
+			<li></li>
+			<li style="height: 60px; margin-top: 20px;">
+				<span>
+					<input class="form-control me-2" style="width: 200px; margin-left: 37%;" placeholder="커뮤니티 내 검색">
+				</span>
+			</li>
+		</ul>
+		<th:block th:if="${!#lists.isEmpty(commu)}">
+			<ul th:each="list : ${commu}">
+				<li>
+					<span th:text="${list.creator_id}"></span>
+					<span th:text="${list.created_datetime}"></span>
+					<div><a style="text-align: right;" th:href="@{/hoit/community/view.do?(commu_cd=${list.commu_cd})}" th:text="${list.commu_title}"></a></div>
+					<div style="text-align: right;"><img src="/css/eye.svg"/>&nbsp;[[${list.hit_cnt}]]</div>
+				</li>
+			</ul>
+		</th:block>
+	</div>
+</body>
+</html>

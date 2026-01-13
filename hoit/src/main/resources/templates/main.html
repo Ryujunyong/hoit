@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Admin template that can be used to build dashboards for CRM, CMS, etc." />
+    <meta name="author" content="Potenza Global Solutions" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- app favicon -->
+    <link rel="shortcut icon" href="/css/assets/img/favicon.ico">
+    <!-- google fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <!-- plugin stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/assets/css/vendors.css" />
+    <!-- app style -->
+    <link rel="stylesheet" type="text/css" href="/css/assets/css/style.css" />
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+</head>
+
+<body class="bg-white">
+    <!-- begin app -->
+    <div class="app">
+        <!-- begin app-wrap -->
+        <div class="app-wrap">
+            <!-- begin pre-loader -->
+            <div class="loader">
+                <div class="h-100 d-flex justify-content-center">
+                    <div class="align-self-center">
+                        <img src="/css/assets/img/loader/loader.svg" alt="loader">
+                    </div>
+                </div>
+            </div>
+            <!-- end pre-loader -->
+
+            <!--start login contant-->
+            <div class="app-contant">
+                <div class="bg-white">
+                    <div class="container-fluid p-0">
+                        <div class="row no-gutters">
+                            <div class="col-sm-6 col-lg-5 col-xxl-3  align-self-center order-2 order-sm-1">
+                                <div class="d-flex align-items-center h-100-vh">
+                                    <div class="login p-50">
+                                        <h1 class="mb-2">hoit</h1>
+                                        <p>Welcome back, please login to your account.</p>
+											<div class="row">
+											    <div class="col-12">
+											        <div class="form-group">
+											            <label class="control-label">User ID</label>
+											            <input type="text" class="form-control" name="user_id" placeholder="UserID"/>
+											        </div>
+											    </div>
+											    <div class="col-12">
+											        <div class="form-group">
+											            <label class="control-label">Password</label>
+											            <input type="password" class="form-control" name="user_pw" placeholder="Password"/>
+											        </div>
+											    </div>
+											    <div class="col-12">
+											        <div class="d-block d-sm-flex  align-items-center">
+											            <div class="form-check">
+											                <input class="form-check-input" type="checkbox" id="gridCheck">
+											                <label class="form-check-label" for="gridCheck">
+											                    Remember Me
+											                </label>
+											            </div>
+											            <a href="javascript:void(0);" class="ml-auto">Forgot Password ?</a>
+											        </div>
+											    </div>
+											    <div class="col-12 mt-3">
+											        <button type="button" class="btn btn-primary text-uppercase" onclick="fn_login();">로그인</button>
+											    </div>
+											    <div class="col-12  mt-3">
+											        <p>Don't have an account ?<a href="/Login/loginInsert"> 회원가입</a></p>
+											    </div>
+											</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xxl-9 col-lg-7 o-hidden order-1 order-sm-2">
+                                <div class="row align-items-center h-100">
+                                    <div class="col-7 mx-auto ">
+                                        <img class="img-fluid" src="/css/assets/img/bg/login.svg" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end login contant-->
+        </div>
+        <!-- end app-wrap -->
+    </div>
+    <!-- end app -->
+    <!-- plugins -->
+    <script src="/css/assets/js/vendors.js"></script>
+    <!-- custom app -->
+    <script src="/css/assets/js/app.js"></script>  
+    <script type="text/javascript" defer>
+    	
+    </script>
+</body>
+</html>
