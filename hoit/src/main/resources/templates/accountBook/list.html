@@ -101,58 +101,70 @@
 <body>
     <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
     <div class="container">
-		<ul>
-			<li></li>
-			<li style="height: 60px; margin-top: 20px;">
-				<div class="input-group mb-3" style="display: flex;">
-					<span id="date" style="margin-top: 8px;">&nbsp;&nbsp;</span>
-					<input class="form-control me-2" id="CHARGE_AMOUNT" name="CHARGE_AMOUNT" placeholder="충전금액">
-					<button class="btn btn-outline-info" onclick="fn_chargeCash();">충전</button>&nbsp;&nbsp;
-					<input class="form-control me-2" id="TOTAL_AMOUNT2" style="text-align: right;" disabled>
-					<input class="form-control me-2" id="CASHBACK_AMOUNT" name="CASHBACK_AMOUNT" placeholder="캐시백">
+		<!-- 상단 충전 및 정보 영역 -->
+		<div class="row g-2 mt-4 mb-3 align-items-center">
+			<div class="col-12 col-md-2 text-center">
+				<span id="date"></span>
+			</div>
+			<div class="col-12 col-md-3">
+				<div class="input-group">
+					<input class="form-control" id="CHARGE_AMOUNT" name="CHARGE_AMOUNT" placeholder="충전금액">
+					<button class="btn btn-outline-info" onclick="fn_chargeCash();">충전</button>
+				</div>
+			</div>
+			<div class="col-12 col-md-3">
+				<input class="form-control" id="TOTAL_AMOUNT2" style="text-align: right;" disabled placeholder="총 충전액">
+			</div>
+			<div class="col-12 col-md-4">
+				<div class="input-group">
+					<input class="form-control" id="CASHBACK_AMOUNT" name="CASHBACK_AMOUNT" placeholder="캐시백">
 					<button class="btn btn-outline-info" onclick="fn_chargeCashBack();">충전</button>
 				</div>
-			</li>
-		</ul>
-		<ul>
-			<li style="height: 10%; margin-top: 20xp;">
-				<div class="input-group mb-3" style="display: flex;">
-					<input class="form-control me-2" id="USE_AMOUNT" name="USE_AMOUNT" placeholder="사용금액">
-					<input class="form-control me-2" id="DESCRIPTION" name="DESCRIPTION" placeholder="거래상세내용">
+			</div>
+		</div>
+
+		<!-- 사용 내역 등록 영역 -->
+		<div class="row g-2 mb-4 align-items-center">
+			<div class="col-12 col-md-3">
+				<input class="form-control" id="USE_AMOUNT" name="USE_AMOUNT" placeholder="사용금액">
+			</div>
+			<div class="col-12 col-md-5">
+				<div class="input-group">
+					<input class="form-control" id="DESCRIPTION" name="DESCRIPTION" placeholder="거래상세내용">
 					<button class="btn btn-outline-info" onclick="fn_write();">등록</button>
-					<h4 style="margin-top: 8px;">&nbsp;&nbsp;남은금액&nbsp;&nbsp;</h4>
-					<input class="form-control me-2" id="TOTAL_AMOUNT" name="TOTAL_AMOUNT" style="text-align: right;" disabled placeholder="남은금액">
 				</div>
-			</li>
-		</ul>
-		<table class="table-container" border="1" style="width: 100%">
-			<thead>
-				<tr style="text-align: center;">
-					<th>사용 금액</th>
-					<th>거래 상세 내용</th>
-					<th>거래 일자</th>
-					<th>작성 일자</th>
-				</tr>
-			</thead>
-			<tbody>
-				<th:block th:if="${!#lists.isEmpty(list)}">
-					<tr style="text-align: center;" th:each="list : ${list}">
-						<td>
-							<ul><li th:text="|${#numbers.formatInteger(list.USE_AMOUNT, 3, 'COMMA')}원|"></li></ul>
-		                </td>
-		                <td>
-			                <ul><li th:text="${list.DESCRIPTION}"></li></ul>
-		                </td>
-		                <td>
-			                <ul><li th:text="${list.ACCOUNT_DATE}"></li></ul>
-		                </td>
-		                <td>
-			                <ul><li th:text="${list.CREATE_DT}"></li></ul>
-		                </td>
+			</div>
+			<div class="col-12 col-md-4">
+				<div class="input-group">
+					<span class="input-group-text">남은금액</span>
+					<input class="form-control" id="TOTAL_AMOUNT" name="TOTAL_AMOUNT" style="text-align: right;" disabled placeholder="남은금액">
+				</div>
+			</div>
+		</div>
+
+		<!-- 테이블 영역 -->
+		<div class="table-responsive">
+			<table class="table table-bordered table-hover" style="width: 100%; min-width: 500px; text-align: center;">
+				<thead class="table-light">
+					<tr>
+						<th>사용 금액</th>
+						<th>거래 상세 내용</th>
+						<th>거래 일자</th>
+						<th>작성 일자</th>
 					</tr>
-				</th:block>
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					<th:block th:if="${!#lists.isEmpty(list)}">
+						<tr th:each="list : ${list}">
+							<td th:text="|${#numbers.formatInteger(list.USE_AMOUNT, 3, 'COMMA')}원|"></td>
+							<td th:text="${list.DESCRIPTION}"></td>
+							<td th:text="${list.ACCOUNT_DATE}"></td>
+							<td th:text="${list.CREATE_DT}"></td>
+						</tr>
+					</th:block>
+				</tbody>
+			</table>
+		</div>
 	</div>
 	<script th:inline="javascript" defer>
 	const formatter = new Intl.NumberFormat('ko-KR');
