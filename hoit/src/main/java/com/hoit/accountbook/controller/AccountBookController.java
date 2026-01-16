@@ -35,6 +35,7 @@ public class AccountBookController {
 		String currentDate = sdf.format(date);
 		param.put("ASSET_AT", currentDate);
 		model.addAttribute("cm", accountBookService.getCurrentMoney());
+		System.out.println(accountBookService.accountBookList());
 		model.addAttribute("list", accountBookService.accountBookList());
 		model.addAttribute("ta", accountBookService.getTotalAssets(param));
 //		model.addAttribute("mm", minCharge);
@@ -65,5 +66,12 @@ public class AccountBookController {
 	public void chargeCashBack(@RequestBody Map<String, Object> param) {
 		param.put("CASHBACK_ID", UniqueKey.getKeyByDateFormat());
 		cashBackService.chargeCashBack(param);
+	}
+	
+	@PostMapping(value = "/deleteAccountBook_submit.do")
+	@ResponseBody
+	public void deleteAccountBook(@RequestBody Map<String, Object> param) {
+		System.out.println(param);
+		accountBookService.deleteAccountBook(param);
 	}
 }

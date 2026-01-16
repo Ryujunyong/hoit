@@ -55,6 +55,7 @@ public class AccountBookServiceImpl implements AccountBookService {
 	@Override
 	public void deleteAccountBook(Map<String, Object> map) {
 		accountBookMapper.deleteAccountBook(map);
+		accountBookMapper.deleteAsset(map);
 	}
 	
 	@Override

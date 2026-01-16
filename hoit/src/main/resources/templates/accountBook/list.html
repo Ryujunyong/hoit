@@ -97,6 +97,24 @@
 			alert('에러'+e);
 		});
 	}
+	
+    function fn_deleteAcBook(ACCOUNT_ID) {
+        axios({
+            method: "post",
+            url: "/hoit/accountBook/deleteAccountBook_submit.do",
+            data: {
+              "ACCOUNT_ID": ACCOUNT_ID,
+              "ASSET_ID": [[${cm.ASSET_ID}]],
+            }
+          })
+          .then(res => {
+            console.log("res", res);
+            location.reload();
+          })
+          .catch(err => {
+            console.log("err", err);
+          });
+    }
 </script>
 <body>
     <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
@@ -115,12 +133,12 @@
 			<div class="col-12 col-md-3">
 				<input class="form-control" id="TOTAL_AMOUNT2" style="text-align: right;" disabled placeholder="총 충전액">
 			</div>
-			<div class="col-12 col-md-4">
+			<!-- <div class="col-12 col-md-4">
 				<div class="input-group">
 					<input class="form-control" id="CASHBACK_AMOUNT" name="CASHBACK_AMOUNT" placeholder="캐시백">
 					<button class="btn btn-outline-info" onclick="fn_chargeCashBack();">충전</button>
 				</div>
-			</div>
+			</div> -->
 		</div>
 
 		<!-- 사용 내역 등록 영역 -->
@@ -160,6 +178,7 @@
 							<td th:text="${list.DESCRIPTION}"></td>
 							<td th:text="${list.ACCOUNT_DATE}"></td>
 							<td th:text="${list.CREATE_DT}"></td>
+							<td><button type="button" th:onclick="fn_deleteAcBook([[${list.ACCOUNT_ID}]]);">삭제</button></td>
 						</tr>
 					</th:block>
 				</tbody>

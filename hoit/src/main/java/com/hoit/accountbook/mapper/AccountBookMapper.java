@@ -19,6 +19,8 @@ public interface AccountBookMapper {
 	void edieTotalMoney(Map<String, Object> map);
 	// 가계부 삭제
 	void deleteAccountBook(Map<String, Object> map);
+	// 금액 제거
+	void deleteAsset(Map<String, Object> map);
 	// 현재 금액 조회
 	Map<String, Object> getCurrentMoney();
 	// 금액 조회
