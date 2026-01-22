@@ -4,14 +4,16 @@
 	  layout:decorate="~{layouts/default.html}"
       layout:fragment="Content">
 <script type="text/javascript" defer>
+
 	$(function() {
-		$('#USE_AMOUNT').focus();
+		$('#AMOUNT').focus();
 	});
 	function fn_write() {
-		let use_amount = $("input[name=USE_AMOUNT]").val();
+		let amount = $("input[name=USE_AMOUNT]").val();
 		let description = $("input[name=DESCRIPTION]").val();
 		const sendData = {
-				USE_AMOUNT: cleanNumber,
+				AMOUNT: cleanNumber,
+				ACCOUNT_TYPE: $('#select-account').val(),
 				DESCRIPTION: description
 		}
 		fetch('/hoit/accountBook/write_submit.do', {
@@ -30,11 +32,12 @@
 		.catch(e => {
 			alert('에러'+JSON.stringify(e));
 		});
+		
 	}
 	
-	function fn_chargeCash() {
+	function fn_saveAsset() {
 	    const sendData = {
-	        CHARGE_AMOUNT: cleanNum,
+	    	CURRENT_BALANCE: cleanNum,
 	    };
 		fetch('/hoit/accountBook/chargeCash_submit.do', {
 			method: 'POST',
@@ -56,6 +59,7 @@
 			alert('에러'+e);
 		});
 	}
+	/*
 	function fn_editTotalMoney() {
 		fetch('/hoit/accountBook/editTotalMoney_submit.do', {
 			method: 'POST',
@@ -98,14 +102,16 @@
 		});
 	}
 	
-    function fn_deleteAcBook(ACCOUNT_ID) {
+    function fn_deleteAcBook(val) {
+    	
+    	let sendData = {
+    			"ACCOUNT_ID": $(val).attr('data-account-id'),
+            	"ASSET_ID": $(val).attr('data-asset-id'),
+    	}
         axios({
             method: "post",
             url: "/hoit/accountBook/deleteAccountBook_submit.do",
-            data: {
-              "ACCOUNT_ID": ACCOUNT_ID,
-              "ASSET_ID": [[${cm.ASSET_ID}]],
-            }
+            data: sendData
           })
           .then(res => {
             console.log("res", res);
@@ -115,23 +121,22 @@
             console.log("err", err);
           });
     }
+    */
 </script>
 <body>
     <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
     <div class="container">
 		<!-- 상단 충전 및 정보 영역 -->
 		<div class="row g-2 mt-4 mb-3 align-items-center">
-			<div class="col-12 col-md-2 text-center">
+			<div class="col-12 col-md-3 text-center text-md-start">
 				<span id="date"></span>
 			</div>
-			<div class="col-12 col-md-3">
+			<div class="col-md-5 d-none d-md-block"></div>
+			<div class="col-12 col-md-4">
 				<div class="input-group">
-					<input class="form-control" id="CHARGE_AMOUNT" name="CHARGE_AMOUNT" placeholder="충전금액">
-					<button class="btn btn-outline-info" onclick="fn_chargeCash();">충전</button>
+					<input class="form-control" id="SAVE_ASSET" name="SAVE_ASSET" placeholder="충전금액">
+					<button class="btn btn-outline-info" onclick="fn_saveAsset();">충전</button>
 				</div>
-			</div>
-			<div class="col-12 col-md-3">
-				<input class="form-control" id="TOTAL_AMOUNT2" style="text-align: right;" disabled placeholder="총 충전액">
 			</div>
 			<!-- <div class="col-12 col-md-4">
 				<div class="input-group">
@@ -144,7 +149,13 @@
 		<!-- 사용 내역 등록 영역 -->
 		<div class="row g-2 mb-4 align-items-center">
 			<div class="col-12 col-md-3">
-				<input class="form-control" id="USE_AMOUNT" name="USE_AMOUNT" placeholder="사용금액">
+				<div class="input-group">
+					<select class="form-select" id="select-account" aria-label="Default select example" style="max-width: 90px;">
+	  					<option value="I" selected>충전</option>
+	  					<option value="O">지출</option>
+					</select>
+					<input class="form-control" id="AMOUNT" name="AMOUNT" placeholder="사용금액">
+				</div>
 			</div>
 			<div class="col-12 col-md-5">
 				<div class="input-group">
@@ -155,7 +166,7 @@
 			<div class="col-12 col-md-4">
 				<div class="input-group">
 					<span class="input-group-text">남은금액</span>
-					<input class="form-control" id="TOTAL_AMOUNT" name="TOTAL_AMOUNT" style="text-align: right;" disabled placeholder="남은금액">
+					<input class="form-control" id="CURRENT_BALANCE" name="CURRENT_BALANCE" style="text-align: right;" disabled placeholder="남은금액">
 				</div>
 			</div>
 		</div>
@@ -174,11 +185,13 @@
 				<tbody>
 					<th:block th:if="${!#lists.isEmpty(list)}">
 						<tr th:each="list : ${list}">
-							<td th:text="|${#numbers.formatInteger(list.USE_AMOUNT, 3, 'COMMA')}원|"></td>
+							<td th:text="|${#numbers.formatInteger(list.AMOUNT, 3, 'COMMA')}원|"></td>
 							<td th:text="${list.DESCRIPTION}"></td>
 							<td th:text="${list.ACCOUNT_DATE}"></td>
 							<td th:text="${list.CREATE_DT}"></td>
-							<td><button type="button" th:onclick="fn_deleteAcBook([[${list.ACCOUNT_ID}]]);">삭제</button></td>
+							<th:block th:if="${list.ACCOUNT_TYPE != 'S'}">
+								<td><button type="button" class="btn btn-outline-info" th:data-account-id="${list.ACCOUNT_ID}" th:data-asset-id="${list.ASSET_ID}" onclick="fn_deleteAcBook(this)">삭제</button></td>
+							</th:block>
 						</tr>
 					</th:block>
 				</tbody>
@@ -187,74 +200,50 @@
 	</div>
 	<script th:inline="javascript" defer>
 	const formatter = new Intl.NumberFormat('ko-KR');
-	let current_balance = [[${cm.CURRENT_BALANCE}]];
-	let total_charge = [[${ta.CHARGE_AMOUNT}]];
-	$('#TOTAL_AMOUNT').val(formatter.format(current_balance)+'원');
-	$('#TOTAL_AMOUNT2').val(formatter.format(total_charge)+'원');
+	let current_balance = [[${cb.CURRENT_BALANCE}]];
+	$('#CURRENT_BALANCE').val(formatter.format(current_balance)+'원');
 	let cleanNum = 0; // 정수형 입력 값
-	$('#CHARGE_AMOUNT').on('input', function() {
+	$('#SAVE_ASSET').on('input', function() {
 		let $this = $(this);
 		
 		cleanNum = $this.val().replace(/[^0-9]/g, '');
 		let formatterdNumber = cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 		$this.val(formatterdNumber);
 	});
-	const ets = parseInt($('#TOTAL_AMOUNT').val().replaceAll(',', ''), 10) || 0;
-	const ua = parseInt($('#USE_AMOUNT').val(), 10) || 0;
+	const ets = parseInt($('#CURRENT_BALANCE').val().replaceAll(',', ''), 10) || 0;
 	let final_result = 0;
 	let numbericVal = 0;
 	let cleanNumber = 0;
-	$('#USE_AMOUNT').on('input', function() {
+	
+	function calcTotal() {
+		cleanNumber = $('#AMOUNT').val().replace(/[^0-9]/g, '');
+		if (cleanNumber === '') {
+			$('#CURRENT_BALANCE').val(formatter.format(current_balance)+'원');
+			return;
+		}
+		numbericVal = parseInt(cleanNumber, 10);
+		if ($('#select-account').val() == 'I') {
+			final_result = ets + numbericVal;
+		} else {
+			final_result = ets - numbericVal;
+		}
+		$('#CURRENT_BALANCE').val(final_result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')+'원');
+	}
+	
+	$('#AMOUNT').on('input', function() {
 		let $this = $(this);
-		
 		cleanNumber = $this.val().replace(/[^0-9]/g, '');
 		if (cleanNumber === '') {
 			$this.val('');
-			return;
+		} else {
+			$this.val(formatter.format(cleanNumber));
 		}
-		let formatterdNumber = cleanNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-		
-		$this.val(formatterdNumber);
-		
-		numbericVal = parseInt(cleanNumber, 10);
-		final_result = ets - numbericVal;
-		$('#TOTAL_AMOUNT').val(final_result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')+'원');
+		calcTotal();
 	});
-	/*
-		const formatter = new Intl.NumberFormat('ko-KR', {
-			minimimFractionDigits: 0
-		})
-		let cleanNum = 0;
-		$('#CHARGE_AMOUNT').on('input', function() {
-			let $this = $(this);
-			
-			cleanNum = $this.val().replace(/[^0-9]/g, '');
-			let formatterdNumber = cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-			$this.val(formatterdNumber);
-		});
-		const ets = parseInt($('#TOTAL_AMOUNT').val().replaceAll(',', ''), 10) || 0;
-		const ua = parseInt($('#USE_AMOUNT').val(), 10) || 0;
-		let final_result = 0;
-		let numbericVal = 0;
-		let cleanNumber = 0;
-		$('#USE_AMOUNT').on('input', function() {
-			let $this = $(this);
-			
-			cleanNumber = $this.val().replace(/[^0-9]/g, '');
-			if (cleanNumber === '') {
-				$this.val('');
-				return;
-			}
-			let formatterdNumber = cleanNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-			
-			$this.val(formatterdNumber);
-			
-			numbericVal = parseInt(cleanNumber, 10);
-			final_result = ets - numbericVal;
-			$('#TOTAL_AMOUNT').val(final_result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')+'원');
-		});
-		*/
-		
-		</script>
+	
+	$('#select-account').on('change', function() {
+		calcTotal();
+	});
+	</script>
 </body>
 </html>

@@ -3,41 +3,20 @@
 <mapper namespace="com.hoit.accountbook.mapper.AccountBookMapper">
 	<select id="accountBookList" resultType="map">
 		SELECT ACCOUNT_ID
+			 , ASSET_ID
 			 , CATEGORY_ID
+			 , ACCOUNT_TYPE
 			 , ACCOUNT_DATE
-			 , USE_AMOUNT
+			 , AMOUNT
 			 , DESCRIPTION
 			 , CREATE_DT
 		FROM T_ACCOUNT_BOOK
 	</select>
 	<select id="getCurrentMoney" resultType="map">
-		<!-- SELECT IFNULL(
-			(
-				SELECT CURRENT_BALANCE 
-				FROM T_ASSETS 
-				ORDER BY ASSET_AT DESC 
-				LIMIT 1
-			), 0) AS CURRENT_BALANCE -->
-			
-		SELECT 
-		    IFNULL(MAX(ASSET_ID), 0) AS ASSET_ID,
-		    IFNULL(MAX(CURRENT_BALANCE), 0) AS CURRENT_BALANCE
-		FROM (
-		    SELECT ASSET_ID, CURRENT_BALANCE
-		    FROM T_ASSETS
-		    ORDER BY ASSET_AT DESC
-		    LIMIT 1
-		) AS A
-	</select>
-	<select id="getSelectCommunity" resultType="map" parameterType="map">
-	 	SELECT ACCOUNT_ID
-			 , CATEGORY_ID
-			 , ACCOUNT_DATE
-			 , USE_AMOUNT
-			 , DESCRIPTION
-			 , CREATE_DT
-		FROM T_ACCOUNT_BOOK
-		WHERE ACCOUNT_ID = #{ACCOUNT_ID}
+		SELECT ASSET_ID
+			 , ASSET_TYPE
+			 , CURRENT_BALANCE
+		FROM T_ASSETS
 	</select>
 	<select id="accountBookCnt" resultType="map" parameterType="map">
 		SELECT COUNT(*)
@@ -50,16 +29,16 @@
 		WHERE SUBSTR(ASSET_AT, 1, 7) = #{ASSET_AT}
 	</select>
 	
-	<insert id="chargeCash" parameterType="map">
+	<insert id="saveAsset" parameterType="map">
 		INSERT INTO T_ASSETS
 		(
 			ASSET_ID
-		  , CHARGE_AMOUNT
+		  , ASSET_TYPE
 		  , CURRENT_BALANCE
 		  , ASSET_AT
 		) VALUES (
 			#{ASSET_ID}
-		  , #{CHARGE_AMOUNT}
+		  , #{ASSET_TYPE}
 		  , #{CURRENT_BALANCE}
 		  , SYSDATE()
 		);  
@@ -68,31 +47,28 @@
 		INSERT INTO T_ACCOUNT_BOOK
 		(
 			ACCOUNT_ID
+		  , ASSET_ID
 		  , CATEGORY_ID
+		  , ACCOUNT_TYPE
 		  , ACCOUNT_DATE
-		  , USE_AMOUNT
+		  , AMOUNT
 	      , DESCRIPTION
 		  , CREATE_DT
 		) VALUE (
 			#{ACCOUNT_ID}
+		  , #{ASSET_ID}
 		  , #{CATEGORY_ID}
+		  , #{ACCOUNT_TYPE}
 		  , DATE_FORMAT(NOW(), '%Y-%m-%d')
-		  , #{USE_AMOUNT}
+		  , #{AMOUNT}
 		  , #{DESCRIPTION}
 		  , NOW()
 		);  
 	</insert>
-	<update id="edieAccountBook" parameterType="map">
-		UPDATE T_ACCOUNT_BOOK
-		SET commu_title = #{commu_title}
-		  , contents = #{contents}
-		  , updated_datetime = NOW()
-		  , updater_id = #{updater_id}
-	</update>
-	<update id="edieTotalMoney" parameterType="map">
-		UPDATE T_ACCOUNT_BOOK
-		SET TOTAL_MONEY = #{TOTAL_MONEY}
-		WHERE ACCOUNT_ID = #{ACCOUNT_ID};
+	<update id="renewAsset" parameterType="map">
+		UPDATE T_ASSETS
+		SET CURRENT_BALANCE = #{CURRENT_BALANCE}
+		WHERE ASSET_ID = #{ASSET_ID};
 	</update>
 	<delete id="deleteAccountBook" parameterType="map">
 		DELETE FROM T_ACCOUNT_BOOK

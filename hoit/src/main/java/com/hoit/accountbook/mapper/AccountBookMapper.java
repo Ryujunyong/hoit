@@ -15,8 +15,8 @@ public interface AccountBookMapper {
 	void writeAccountBook(Map<String, Object> map);
 	// 가계부 수정
 	void edieAccountBook(Map<String, Object> map);
-	// 금액 추가(캐시백)
-	void edieTotalMoney(Map<String, Object> map);
+	// 금액 갱신
+	void renewAsset(Map<String, Object> map);
 	// 가계부 삭제
 	void deleteAccountBook(Map<String, Object> map);
 	// 금액 제거
@@ -25,7 +25,7 @@ public interface AccountBookMapper {
 	Map<String, Object> getCurrentMoney();
 	// 금액 조회
 	Map<String, Object> getTotalAssets(Map<String, Object> map);
-	// 현금 충전
-	void chargeCash(Map<String, Object> map);
+	// 자산 등록
+	void saveAsset(Map<String, Object> map);
 	
 }
