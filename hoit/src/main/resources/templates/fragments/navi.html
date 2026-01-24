@@ -5,14 +5,38 @@
 	<div class="container-fluid fixed-top">
 	    <div class="container px-0">
 	        <nav class="navbar navbar-light bg-white navbar-expand-xl">
-	            <a href="/hoit/main.do" class="navbar-brand"><h1 class="text-primary display-6">호잇</h1></a>
-                <div class="navbar-nav mx-auto">
-                    <a class="nav-item nav-link active">Home</a>
-                    <!-- <a href="/hoit/community/list.do" class="nav-link">커뮤니티</a> -->
-                    <a href="/hoit/accountBook/list.do" class="nav-link">가계부</a>
-                </div>
+	        	<a href="javascript:void(0);" id="menuGo"><i class="bi bi-justify" title="바로가기"></i></a>
+	            <a href="javascript:void(0);" class="navbar-brand"><h1 class="text-primary display-6">호잇</h1></a>
 	        </nav>
 	    </div>
 	</div>
+	<script>
+		$(function() {
+			var popoverContent = '<div class="list-group list-group-flush">' + 
+								 '<a href="" class="list-group-item list-group-item-action p-2">Home</a>' + 
+								 '<a href="/hoit/accountBook/list.do" class="list-group-item list-group-item-action p-2">가계부</a>' + 
+								 '</div>';
+			
+			var popover = new bootstrap.Popover(document.getElementById('menuGo'), {
+				content: popoverContent,
+				html: true,
+				placement: 'bottom',
+				trigger: 'focus'
+			});
+			
+			$(window).scroll(function() {
+				var $fixedTop = $('.fixed-top');
+				var $navbar = $('.navbar');
+				if ($(this).scrollTop() > 50) {
+					$fixedTop.css({'background': 'transparent', 'border-bottom': 'none', 'box-shadow': 'none'});
+					$navbar.removeClass('bg-white').css('background', 'transparent');
+				} else {
+					$fixedTop.css({'background': '', 'border-bottom': '', 'box-shadow': ''});
+					$navbar.addClass('bg-white').css('background', '');
+				}
+			});
+		});
+		
+	</script>
 </body>
 </html>

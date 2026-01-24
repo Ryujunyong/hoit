@@ -542,11 +542,26 @@ input {
     padding: 10px 0;
 }
 
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
 /* 2. 브랜드 로고(h1)가 모바일에서 너무 크지 않게 조절 */
 .navbar-brand h1 {
     font-size: 1.5rem; /* 모바일에서는 조금 작게 */
     font-weight: 700;
     white-space: nowrap; /* 로고 글자 줄바꿈 방지 */
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+#menuGo {
+    font-size: 1.5rem;
+    color: #333;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
 }
 
 /* 3. 모바일 메뉴 스타일 (화면이 작을 때만 적용) */
@@ -575,6 +590,10 @@ input {
 @media (min-width: 1200px) {
     .navbar-brand h1 {
         font-size: 2.5rem; /* PC에서는 원래 크기로 */
+    }
+    
+    #menuGo {
+        font-size: 2.5rem;
     }
     
     .nav-item.nav-link {
