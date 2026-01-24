@@ -502,7 +502,6 @@
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 400px; /* 테이블이 너무 찌그러지지 않게 최소 너비 설정 */
 }
 
 input, select, textarea {
