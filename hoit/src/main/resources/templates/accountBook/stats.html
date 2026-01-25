@@ -28,9 +28,9 @@
 			for (let i = 1; i <= 12; i++) {
 				let fn = String(i).padStart(2, '0');
 				let amount = res.data[fn];
-				html += `<div class="col-4 col-md-2 col-lg-1 border-bottom border-end py-2">
+				html += `<div class="col-3 col-md-2 col-lg-1 border-bottom border-end py-2">
 							<div class="fw-bold mb-1" style="color: #555;">${i}월</div>
-							<div style="font-size: 0.9rem; word-break: break-all;">${formatter.format(amount)}원</div>
+							<div style="font-size: 0.8rem; word-break: break-all;">${formatter.format(amount)}원</div>
 						 </div>`;
 				
 				labels.push(i + '월');
@@ -64,9 +64,16 @@
 				}]
 			},
 			options: {
+				responsive: true,
+				maintainAspectRatio: false,
 				scales: {
 					y: {
 						beginAtZero: true
+					},
+					x: {
+						ticks: {
+							autoSkip: false
+						}
 					}
 				}
 			}
@@ -86,8 +93,8 @@
 			</div>
 		</div>
 		<div class="row mb-4">
-			<div class="col-12">
-				<canvas id="myChart" style="max-height: 400px;"></canvas>
+			<div class="col-12" style="height: 400px;">
+				<canvas id="myChart"></canvas>
 			</div>
 		</div>
 		
