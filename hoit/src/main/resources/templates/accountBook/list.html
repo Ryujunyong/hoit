@@ -101,12 +101,13 @@
 			alert('에러'+e);
 		});
 	}
-	
+	*/
     function fn_deleteAcBook(val) {
     	
     	let sendData = {
     			"ACCOUNT_ID": $(val).attr('data-account-id'),
             	"ASSET_ID": $(val).attr('data-asset-id'),
+            	"AMOUNT": $(val).attr('data-amount')
     	}
         axios({
             method: "post",
@@ -121,7 +122,7 @@
             console.log("err", err);
           });
     }
-    */
+    
 </script>
 <body>
     <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
@@ -192,7 +193,7 @@
 							<td class="d-none d-md-table-cell" th:text="${list.CREATE_DT}"></td>
 							<td>
 								<th:block th:if="${list.ACCOUNT_TYPE != 'S'}">
-									<button type="button" class="btn btn-outline-info btn-sm" th:data-account-id="${list.ACCOUNT_ID}" th:data-asset-id="${list.ASSET_ID}" onclick="fn_deleteAcBook(this)">삭제</button>
+									<button type="button" class="btn btn-outline-info btn-sm" th:data-account-id="${list.ACCOUNT_ID}" th:data-asset-id="${list.ASSET_ID}" th:data-amount="${list.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button>
 								</th:block>
 							</td>
 						</tr>

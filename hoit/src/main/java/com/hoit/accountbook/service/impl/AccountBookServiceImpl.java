@@ -54,8 +54,14 @@ public class AccountBookServiceImpl implements AccountBookService {
 	
 	@Override
 	public void deleteAccountBook(Map<String, Object> map) {
+		Map<String, Object> currentMap = accountBookMapper.getCurrentMoney();
+		long currentMoney = Long.valueOf(String.valueOf(currentMap.get("CURRENT_BALANCE")));
+		long amount = Long.valueOf(String.valueOf(map.get("AMOUNT")));
+		long finalMoney = currentMoney - amount;
+		map.put("ASSET_ID", currentMap.get("ASSET_ID"));
+		map.put("CURRENT_BALANCE", finalMoney);
+		accountBookMapper.renewAsset(map);
 		accountBookMapper.deleteAccountBook(map);
-		accountBookMapper.deleteAsset(map);
 	}
 	
 	@Override
