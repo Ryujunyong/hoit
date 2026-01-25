@@ -89,4 +89,9 @@ public class AccountBookServiceImpl implements AccountBookService {
 		accountBookMapper.saveAsset(map);
 		accountBookMapper.writeAccountBook(map);
 	}
+	
+	@Override
+	public Map<String, Object> getMonthlyAmount(Map<String, Object> map) {
+		return accountBookMapper.getMonthlyAmount(map);
+	}
 }

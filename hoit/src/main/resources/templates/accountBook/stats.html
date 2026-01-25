@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layouts/default.html}"
+      layout:fragment="Content">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript" defer>
+	const formatter = new Intl.NumberFormat('ko-KR');
+	let myChart = null;
+	
+	$(function() {
+		fn_monthlyAmount();		
+	});
+    
+	function fn_monthlyAmount() {
+		sendData = {
+				year: $('#select-year').val()
+		}
+		axios({
+			method: 'POST',
+			url: '/hoit/accountBook/getMonthlyAmount.do',
+			data: sendData
+		})
+		.then(res => {
+			let html = '';
+			let labels = [];
+			let data = [];
+			for (let i = 1; i <= 12; i++) {
+				let fn = String(i).padStart(2, '0');
+				let amount = res.data[fn];
+				html += `<div class="col-4 col-md-2 col-lg-1 border-bottom border-end py-2">
+							<div class="fw-bold mb-1" style="color: #555;">${i}월</div>
+							<div style="font-size: 0.9rem; word-break: break-all;">${formatter.format(amount)}원</div>
+						 </div>`;
+				
+				labels.push(i + '월');
+				data.push(amount);
+			}
+			$('#monthly-data').html(html);
+			fn_drawChart(labels, data);
+		})
+		.catch(e => {
+			console.log(e);
+		})
+	}
+	
+	function fn_drawChart(labels, data) {
+		const ctx = document.getElementById('myChart').getContext('2d');
+		
+		if (myChart) {
+			myChart.destroy();
+		}
+
+		myChart = new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: labels,
+				datasets: [{
+					label: '월별 합계',
+					data: data,
+					backgroundColor: 'rgba(54, 162, 235, 0.2)',
+					borderColor: 'rgba(54, 162, 235, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				scales: {
+					y: {
+						beginAtZero: true
+					}
+				}
+			}
+		});
+	}
+</script>
+<body>
+    <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
+    <div class="container">
+    	<div class="row g-2 mt-4 mb-3 align-items-center">
+			<div class="col-12 col-md-3 text-center text-md-start">
+		    	<select class="form-select" id="select-year" aria-label="Default select example">
+					<option value="2026" selected>2026</option>
+					<option value="2027">2027</option>
+				</select>
+				
+			</div>
+		</div>
+		<div class="row mb-4">
+			<div class="col-12">
+				<canvas id="myChart" style="max-height: 400px;"></canvas>
+			</div>
+		</div>
+		
+		<div id="monthly-data" class="row g-0 text-center border-top border-start mb-5">
+			<!-- 데이터가 동적으로 들어갑니다 -->
+		</div>
+		
+    </div>
+	<script th:inline="javascript">
+		$('#select-year').change(function() {
+			fn_monthlyAmount();
+		})
+	</script>
+</body>
+</html>

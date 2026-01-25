@@ -13,4 +13,5 @@ public interface AccountBookService {
 	Map<String, Object> getCurrentMoney();
 	Map<String, Object> getTotalAssets(Map<String, Object> map);
 	void saveAsset(Map<String, Object> map);
+	Map<String, Object> getMonthlyAmount(Map<String, Object> map);
 }

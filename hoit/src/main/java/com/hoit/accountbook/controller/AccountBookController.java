@@ -64,4 +64,15 @@ public class AccountBookController {
 	public void deleteAccountBook(@RequestBody Map<String, Object> param) {
 		accountBookService.deleteAccountBook(param);
 	}
+	
+	@GetMapping(value = "/stats.do")
+	public String stats() {
+		return "accountBook/stats";
+	}
+	
+	@PostMapping(value = "/getMonthlyAmount.do")
+	@ResponseBody
+	public Map<String, Object> getMonthlyAmount(@RequestBody Map<String, Object> param) {
+		return accountBookService.getMonthlyAmount(param);
+	}
 }

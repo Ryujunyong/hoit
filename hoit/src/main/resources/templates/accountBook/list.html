@@ -7,9 +7,15 @@
 
 	$(function() {
 		$('#AMOUNT').focus();
+		/*
+		axios({
+			method: 'POST',
+			url: '/hoit/accountBook/getMonthlyAmount.do',
+			data: 
+		})
+		*/
 	});
 	function fn_write() {
-		let amount = $("input[name=USE_AMOUNT]").val();
 		let description = $("input[name=DESCRIPTION]").val();
 		const sendData = {
 				AMOUNT: cleanNumber,
@@ -152,8 +158,8 @@
 			<div class="col-12 col-md-3">
 				<div class="input-group">
 					<select class="form-select" id="select-account" aria-label="Default select example" style="max-width: 90px;">
-	  					<option value="I" selected>충전</option>
-	  					<option value="O">지출</option>
+	  					<option value="I">충전</option>
+	  					<option value="O" selected>지출</option>
 					</select>
 					<input class="form-control" id="AMOUNT" name="AMOUNT" placeholder="사용금액">
 				</div>
