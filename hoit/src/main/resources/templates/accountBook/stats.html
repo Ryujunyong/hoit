@@ -64,13 +64,15 @@
 				}]
 			},
 			options: {
+				indexAxis: 'y',
 				responsive: true,
 				maintainAspectRatio: false,
 				scales: {
-					y: {
+					x: {
 						beginAtZero: true
 					},
-					x: {
+					y: {
+						reverse: true,
 						ticks: {
 							autoSkip: false
 						}
