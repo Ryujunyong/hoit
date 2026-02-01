@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layouts/default.html}"
+      layout:fragment="Content">
+<script type="text/javascript">
+	function fn_saveCategory() {
+		let sendData = {
+			CATEGORY_NM: $('#CATEGORY_NM').val(),
+			USE_YN: $('#USE_YN').val()
+		}
+		axios({
+            method: "post",
+            url: "/hoit/category/write_submit.do",
+            data: sendData
+          })
+          .then(res => {
+            console.log("res", res);
+            location.reload();
+          })
+          .catch(err => {
+            console.log("err", err);
+          });
+	}
+	function fn_updateCategory() {
+		sendDate = {
+			CATEGORY_ID: $(val).attr('data-category-id'),
+		}		
+		axios({
+            method: "post",
+            url: "/hoit/category/update_submit.do",
+            data: sendData
+          })
+          .then(res => {
+            console.log("res", res);
+            location.reload();
+          })
+          .catch(err => {
+            console.log("err", err);
+          });
+	}
+</script>
+<body>
+    <h1 class="text-center" style="margin-top: 50px;">카테고리 관리</h1>
+    <div class="container">
+		<!-- 상단 충전 및 정보 영역 -->
+		<div class="row g-2 mt-4 mb-3 align-items-center">
+			<div class="col-12 col-md-3 text-center text-md-start">
+				<span id="date"></span>
+			</div>
+			<div class="col-md-5 d-none d-md-block"></div>
+			<div class="col-12 col-md-4">
+				<div class="input-group">
+					<select class="form-select" id="USE_YN" aria-label="Default select example" style="max-width: 90px;">
+	  					<option value="Y" selected>사용</option>
+	  					<option value="N">미사용</option>
+					</select>
+					<input class="form-control" id="CATEGORY_NM" name="CATEGORY_NM" placeholder="카테고리 명">
+					<button class="btn btn-outline-info" onclick="fn_saveCategory();">등록</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 테이블 영역 -->
+		<div class="table-responsive">
+			<table class="table table-bordered table-hover table-sm" style="width: 100%; text-align: center;">
+				<thead class="table-light">
+					<tr>
+						<th>카테고리 명</th>
+						<th>카테고리 사용여부</th>
+						<th>관리</th>
+					</tr>
+				</thead>
+				<tbody>
+					<th:block th:if="${!#lists.isEmpty(list)}">
+						<tr th:each="list : ${list}">
+							<td th:text="${list.CATEGORY_NM}"></td>
+							<td th:text="${list.USE_YN}"></td>
+							<td><button type="button" class="btn btn-outline-info btn-sm" th:data-category-id="${list.CATEGORY_ID}" onclick="fn_updateCategory(this)">삭제</button></td>
+						</tr>
+					</th:block>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<script th:inline="javascript">
+	</script>
+</body>
+</html>

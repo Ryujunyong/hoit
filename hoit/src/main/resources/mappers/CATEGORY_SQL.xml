@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hoit.category.mapper.CategoryMapper">
+	<select id="selectCategoryList" resultType="map" parameterType="map">
+		SELECT CATEGORY_ID
+			 , CATEGORY_NM
+			 , USE_YN
+		FROM T_CATEGORY
+		<where>
+			<if test="USE_YN != null and USE_YN != ''">
+				AND USE_YN = #{USE_YN}
+			</if>
+		</where>
+	</select>
+	<select id="selectCategoryTotCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM T_CATEGORY
+	</select>
+	
+	<insert id="insertCategory" parameterType="map">
+		INSERT INTO T_CATEGORY
+		(
+			CATEGORY_ID
+		  , CATEGORY_NM
+		  , USE_YN
+		) VALUE (
+			#{CATEGORY_ID}
+		  , #{CATEGORY_NM}
+		  , #{USE_YN}
+		);  
+	</insert>
+	<update id="updateCategory" parameterType="map">
+		UPDATE T_CATEGORY
+		SET CATEGORY_NM = #{CATEGORY_NM}
+		  , USE_YN = #{USE_YN}
+		WHERE CATEGORY_ID = #{CATEGORY_ID}
+	</update>
+</mapper>
