@@ -185,27 +185,27 @@
 		</div>
 
 		<!-- 테이블 영역 -->
-		<div class="table-responsive">
+		<div>
 			<table class="table table-bordered table-hover table-sm" style="width: 100%; text-align: center;">
 				<thead class="table-light">
 					<tr>
-						<th>카테고리</th>
-						<th>사용 금액</th>
+						<th style="white-space: nowrap;">카테고리</th>
+						<th style="white-space: nowrap;">사용 금액</th>
 						<th>거래 상세 내용</th>
-						<th>거래 일자</th>
+						<th style="white-space: nowrap;">거래 일자</th>
 						<th class="d-none d-md-table-cell">작성 일자</th>
-						<th>관리</th>
+						<th style="white-space: nowrap;">관리</th>
 					</tr>
 				</thead>
 				<tbody>
 					<th:block th:if="${!#lists.isEmpty(list)}">
 						<tr th:each="list : ${list}">
-							<td th:text="${list.CATEGORY_NM}"></td>
-							<td th:text="|${#numbers.formatInteger(list.AMOUNT, 3, 'COMMA')}원|"></td>
-							<td th:text="${list.DESCRIPTION}"></td>
-							<td th:text="${list.ACCOUNT_DATE}"></td>
+							<td style="vertical-align: middle;" th:text="${list.CATEGORY_NM}"></td>
+							<td style="vertical-align: middle;" th:text="|${#numbers.formatInteger(list.AMOUNT, 3, 'COMMA')}원|"></td>
+							<td style="word-break: break-all; vertical-align: middle;" th:text="${list.DESCRIPTION}"></td>
+							<td style="vertical-align: middle; white-space: nowrap;" th:text="${list.ACCOUNT_DATE}"></td>
 							<td class="d-none d-md-table-cell" th:text="${list.CREATE_DT}"></td>
-							<td>
+							<td style="vertical-align: middle;">
 								<th:block th:if="${list.ACCOUNT_TYPE != 'S'}">
 									<button type="button" class="btn btn-outline-info btn-sm" th:data-account-id="${list.ACCOUNT_ID}" th:data-asset-id="${list.ASSET_ID}" th:data-amount="${list.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button>
 								</th:block>
@@ -218,7 +218,7 @@
 	</div>
 	<script th:inline="javascript" defer>
 	const formatter = new Intl.NumberFormat('ko-KR');
-	let current_balance = [[${cb.CURRENT_BALANCE}]];
+	let current_balance = '[[${cb.CURRENT_BALANCE}]]';
 	$('#CURRENT_BALANCE').val(formatter.format(current_balance)+'원');
 	let cleanNum = 0; // 정수형 입력 값
 	$('#SAVE_ASSET').on('input', function() {

@@ -7,10 +7,10 @@
 		WHERE access_check = 'Y'
 	</select>
 	
-	<select id="getUser" resultType="map" parameterType="map">
+	<select id="getUserById" resultType="map" parameterType="map">
 		SELECT *
 		FROM T_USER
-		WHERE user_id = #{user_id}
+		WHERE user_id = #{USER_ID}
 	</select>
 	
 	<insert id="userJoin" parameterType="map">
@@ -21,14 +21,21 @@
 		  , user_name
 		  , user_atht
 		  , access_check
+		  , user_ip
 		)
 		VALUES 
 		(
-			#{user_id}
-		  , #{user_pw}
-		  , #{user_name}
+			#{USER_ID}
+		  , #{USER_PW}
+		  , #{USER_NAME}
 		  , 10
 		  , 'Y'
+		  , #{USER_IP}
 		)
 	</insert>
+	<update id="userLogout" parameterType="map">
+		UPDATE T_USER
+		SET login_yn = 'N'
+		WHERE user_id = #{USER_ID}
+	</update>
 </mapper>

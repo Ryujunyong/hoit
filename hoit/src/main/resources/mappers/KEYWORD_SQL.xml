@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hoit.keyword.mapper.KeywordMapper">
+	<select id="selectKeywordList" resultType="map">
+		SELECT KEYWORD_ID
+			 , CATEGORY_ID
+			 , KEYWORD_NM
+			 , CASE WHEN PRIORITY = 1 THEN '낮음'
+			 		WHEN PRIORITY = 5 THEN '중간'
+			 		ELSE '높음' END AS PRIORITY_NM 
+			 , PRIORITY
+			 , REG_DT
+		FROM T_KEYWORD
+	</select>
+	<select id="selectKeywordTotCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM T_KEYWORD
+	</select>
+	
+	<insert id="writeKeyword" parameterType="map">
+		INSERT INTO T_KEYWORD
+		(
+			KEYWORD_ID
+		  , CATEGORY_ID
+		  , KEYWORD_NM
+	  	  , PRIORITY
+		  , REG_DT
+		) VALUE (
+			#{KEYWORD_ID}
+		  , #{CATEGORY_ID}
+		  , #{KEYWORD_NM}
+		  , #{PRIORITY}
+		  , SYSDATE()
+		);  
+	</insert>
+	<update id="updateKeyword" parameterType="map">
+		UPDATE T_KEYWORD
+		SET CATEGORY_ID = #{CATEGORY_ID}
+		  , KEYWORD_NM = #{KEYWORD_NM}
+		  , PRIORITY = #{PRIORITY}
+		WHERE KEYWORD_ID = #{KEYWORD_ID}
+	</update>
+	<delete id="deleteKeyword" parameterType="map">
+		DELETE FROM T_KEYWORD
+		WHERE KEYWORD_ID = #{KEYWORD_ID}
+	</delete>
+</mapper>

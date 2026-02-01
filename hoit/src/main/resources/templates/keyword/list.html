@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layouts/default.html}"
+      layout:fragment="Content">
+<script type="text/javascript">
+	function fn_writeKeyword() {
+		let sendData = {
+			CATEGORY_ID: $('#CATEGORY_NM').val(),
+			KEYWORD_NM: $('#KEYWORD_NM').val(),
+			PRIORITY: $('#PRIORITY').val()
+		}
+		axios({
+            method: "post",
+            url: "/hoit/keyword/write_submit.do",
+            data: sendData
+          })
+          .then(res => {
+            console.log("res", res);
+            location.reload();
+          })
+          .catch(err => {
+            console.log("err", err);
+          });
+	}
+	function fn_deleteKeyword(val) {
+		let sendData = {
+			KEYWORD_ID: $(val).attr('data-keyword-id'),
+		}		
+		axios({
+            method: "post",
+            url: "/hoit/keyword/delete_submit.do",
+            data: sendData
+          })
+          .then(res => {
+            console.log("res", res);
+            location.reload();
+          })
+          .catch(err => {
+            console.log("err", err);
+          });
+	}
+</script>
+<body>
+    <h1 class="text-center" style="margin-top: 50px;">키워드 관리</h1>
+    <div class="container">
+		<div class="row g-2 mt-4 mb-3 align-items-center">
+			<div class="col-12 col-md-3 text-center text-md-start">
+				<span id="date"></span>
+			</div>
+			<div class="col-md-5 d-none d-md-block"></div>
+			<div class="col-12 col-md-4">
+				<div class="input-group">
+					<select class="form-select" id="CATEGORY_NM" aria-label="Default select example" style="max-width: 90px;">
+	  					<th:block th:each="list : ${cg}">
+		  					<option th:value="${list.CATEGORY_ID}">[[${list.CATEGORY_NM}]]</option>
+	  					</th:block>
+					</select>
+					<input class="form-control" id="KEYWORD_NM" name="KEYWORD_NM" placeholder="키워드">
+					<select class="form-select" id="PRIORITY" aria-label="Default select example" style="max-width: 90px;">
+						<option value="1">낮음</option>
+						<option value="5">중간</option>
+						<option value="10">높음</option>
+					</select>
+					<button class="btn btn-outline-info" onclick="fn_writeKeyword();">등록</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 테이블 영역 -->
+		<div class="table-responsive">
+			<table class="table table-bordered table-hover table-sm" style="width: 100%; text-align: center;">
+				<thead class="table-light">
+					<tr>
+						<th>키워드</th>
+						<th>우선순위</th>
+						<th>등록일시</th>
+						<th>관리</th>
+					</tr>
+				</thead>
+				<tbody>
+					<th:block th:if="${!#lists.isEmpty(list)}">
+						<tr th:each="list : ${list}">
+							<td th:text="${list.KEYWORD_NM}"></td>
+							<td th:text="${list.PRIORITY_NM}"></td>
+							<td th:text="${list.REG_DT}"></td>
+							<td><button type="button" class="btn btn-outline-info btn-sm" th:data-keyword-id="${list.KEYWORD_ID}" onclick="fn_deleteKeyword(this)">삭제</button></td>
+						</tr>
+					</th:block>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<script th:inline="javascript">
+	</script>
+</body>
+</html>

@@ -10,7 +10,7 @@ public interface LoginMapper {
 
 	List<?> userList() throws Exception;
 	
-	Map<String, Object> getUser(Map<String, Object> map) throws Exception;
+	Map<String, Object> getUserById(Map<String, Object> map);
 	
 	void userJoin(Map<String, Object> map) throws Exception;
 }

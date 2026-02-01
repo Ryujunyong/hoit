@@ -3,6 +3,37 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/login_layout.html}">
 <head>
+    <script type="text/javascript">
+        function fn_join() {
+            const userId = document.getElementById('user_id').value;
+            const userPw = document.getElementById('user_pw').value;
+            const userName = document.getElementById('user_name').value;
+
+            if (!userId || !userPw || !userName) {
+                alert('모든 정보를 입력해주세요.');
+                return;
+            }
+
+            const sendData = {
+                USER_ID: userId,
+                USER_PW: userPw,
+                USER_NAME: userName
+            };
+
+            axios({
+                method: "post",
+                url: "/hoit/join_submit.do",
+                data: sendData
+              })
+              .then(res => {
+            	  alert('회원가입이 완료되었습니다.');
+                  location.href = '/hoit/login.do'
+              })
+              .catch(err => {
+            	  alert('회원가입 실패');
+              });
+        }
+    </script>
 </head>
 
 <div layout:fragment="Content">
@@ -13,40 +44,32 @@
                     <div class="d-flex align-items-center h-100-vh">
                         <div class="login p-50">
                             <h1 class="mb-2">hoit</h1>
-                            <p>Welcome back, please login to your account.</p>
-                            <form action="/login_proc" method="post">
-                                <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                                    아이디 또는 비밀번호를 확인해주세요.
-                                </div>
+                            <p>회원가입</p>
+                            <form onsubmit="return false;">
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="form-group">
                                             <label class="control-label">User ID</label>
-                                            <input type="text" class="form-control" name="user_id" placeholder="UserID"/>
+                                            <input type="text" class="form-control" id="user_id" placeholder="UserID"/>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-group">
                                             <label class="control-label">Password</label>
-                                            <input type="password" class="form-control" name="user_pw" placeholder="Password"/>
+                                            <input type="password" class="form-control" id="user_pw" placeholder="Password"/>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="d-block d-sm-flex  align-items-center">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="gridCheck">
-                                                <label class="form-check-label" for="gridCheck">
-                                                    Remember Me
-                                                </label>
-                                            </div>
-                                            <a href="javascript:void(0);" class="ml-auto">Forgot Password ?</a>
+                                        <div class="form-group">
+                                            <label class="control-label">Name</label>
+                                            <input type="text" class="form-control" id="user_name" placeholder="Name"/>
                                         </div>
                                     </div>
                                     <div class="col-12 mt-3">
-                                        <button type="submit" class="btn btn-primary text-uppercase">로그인</button>
+                                        <button type="button" class="btn btn-primary text-uppercase" onclick="fn_join()">회원가입</button>
                                     </div>
                                     <div class="col-12  mt-3">
-                                        <p>Don't have an account ?<a href="/hoit/createUser.do"> 회원가입</a></p>
+                                        <p>Already have an account ?<a href="/hoit/login.do"> 로그인</a></p>
                                     </div>
                                 </div>
                             </form>

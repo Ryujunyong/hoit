@@ -643,3 +643,8 @@ input {
 #main {
     min-height: calc(100vh - 200px); /* 푸터 높이에 따라 조절 */
 }
+
+/* Bootstrap Grid System의 row가 max-width: 100%로 인해 깨지는 현상 방지 */
+#main .row {
+    max-width: none;
+}
