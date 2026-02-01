@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hoit.login.mapper.LoginMapper;
@@ -14,9 +13,6 @@ public class LoginServiceImpl implements LoginService {
 
 	@Autowired
 	private LoginMapper loginMapper;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 	
 	@Override
 	public List<?> userList() throws Exception {
@@ -30,7 +26,6 @@ public class LoginServiceImpl implements LoginService {
 
 	@Override
 	public void userJoin(Map<String, Object> map) throws Exception {
-		map.put("USER_PW", passwordEncoder.encode(String.valueOf(map.get("USER_PW"))));
 		loginMapper.userJoin(map);
 	}
 	
