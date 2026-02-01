@@ -29,5 +29,6 @@ public interface AccountBookMapper {
 	void saveAsset(Map<String, Object> map);
 	// 월별 통계
 	Map<String, Object> getMonthlyAmount(Map<String, Object> map);
-	
+	// 카테고리별 월별 통계
+	List<Map<String, Object>> getCategoryMonthlyAmount(Map<String, Object> map);
 }

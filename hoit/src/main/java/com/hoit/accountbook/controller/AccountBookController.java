@@ -2,6 +2,8 @@ package com.hoit.accountbook.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.hoit.accountbook.service.AccountBookService;
 import com.hoit.cashback.service.CashBackService;
+import com.hoit.category.service.CategoryService;
 import com.hoit.util.UniqueKey;
 
 @Controller
@@ -27,6 +30,8 @@ public class AccountBookController {
 	
 	@Autowired
 	private CashBackService cashBackService;
+	@Autowired
+	private CategoryService categoryService;
 
 	@GetMapping(value = "/list.do")
 	public String list(Model model, @RequestParam Map<String, Object> param) {
@@ -34,14 +39,18 @@ public class AccountBookController {
 		Date date = new Date();
 		String currentDate = sdf.format(date);
 		param.put("ASSET_AT", currentDate);
+		Map<String, Object> map = new HashMap<>();
+		map.put("USE_YN", "Y");
 		model.addAttribute("list", accountBookService.accountBookList());
 		model.addAttribute("cb", accountBookService.getCurrentMoney());
+		model.addAttribute("cg", categoryService.selectCategoryList(map));
 		return "accountBook/list";
 	}
 	
 	@PostMapping(value = "/write_submit.do")
 	@ResponseBody
 	public void write(@RequestBody Map<String, Object> param) {
+		System.out.println(param);
 		accountBookService.writeAccountBook(param);
 	}
 	
@@ -75,4 +84,10 @@ public class AccountBookController {
 	public Map<String, Object> getMonthlyAmount(@RequestBody Map<String, Object> param) {
 		return accountBookService.getMonthlyAmount(param);
 	}
+	@PostMapping(value = "/getCategoryMonthlyAmount.do")
+	@ResponseBody
+	public List<Map<String, Object>> getCategoryMonthlyAmount(@RequestBody Map<String, Object> param) {
+		return accountBookService.getCategoryMonthlyAmount(param);
+	}
+	
 }

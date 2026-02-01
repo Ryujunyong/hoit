@@ -54,14 +54,8 @@ public class AccountBookServiceImpl implements AccountBookService {
 	
 	@Override
 	public void deleteAccountBook(Map<String, Object> map) {
-		Map<String, Object> currentMap = accountBookMapper.getCurrentMoney();
-		long currentMoney = Long.valueOf(String.valueOf(currentMap.get("CURRENT_BALANCE")));
-		long amount = Long.valueOf(String.valueOf(map.get("AMOUNT")));
-		long finalMoney = currentMoney - amount;
-		map.put("ASSET_ID", currentMap.get("ASSET_ID"));
-		map.put("CURRENT_BALANCE", finalMoney);
-		accountBookMapper.renewAsset(map);
 		accountBookMapper.deleteAccountBook(map);
+		accountBookMapper.deleteAsset(map);
 	}
 	
 	@Override
@@ -70,7 +64,9 @@ public class AccountBookServiceImpl implements AccountBookService {
 		if(currentMoneyMap == null) {
 			currentMoneyMap = new HashMap<>();
 			currentMoneyMap.put("CURRENT_BALANCE", 0);
+			currentMoneyMap.put("CURRENT_STATUS", 'N');
 		}
+		currentMoneyMap.put("CURRENT_STATUS", 'Y');
 		return currentMoneyMap;
 	}
 	
@@ -94,4 +90,10 @@ public class AccountBookServiceImpl implements AccountBookService {
 	public Map<String, Object> getMonthlyAmount(Map<String, Object> map) {
 		return accountBookMapper.getMonthlyAmount(map);
 	}
+	
+	@Override
+	public List<Map<String, Object>> getCategoryMonthlyAmount(Map<String, Object> map) {
+		return accountBookMapper.getCategoryMonthlyAmount(map);
+	}
+
 }

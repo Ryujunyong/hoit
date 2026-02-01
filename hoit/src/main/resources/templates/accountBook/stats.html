@@ -9,76 +9,108 @@
 	let myChart = null;
 	
 	$(function() {
-		fn_monthlyAmount();		
+		fn_getCategoryMonthlyAmount();		
 	});
     
-	function fn_monthlyAmount() {
+	function fn_getCategoryMonthlyAmount() {
 		sendData = {
-				year: $('#select-year').val()
+				year: $('#select-year').val(),
+				month: $('#select-month').val()
 		}
 		axios({
 			method: 'POST',
-			url: '/hoit/accountBook/getMonthlyAmount.do',
+			url: '/hoit/accountBook/getCategoryMonthlyAmount.do',
 			data: sendData
 		})
 		.then(res => {
 			let html = '';
 			let labels = [];
 			let data = [];
-			for (let i = 1; i <= 12; i++) {
-				let fn = String(i).padStart(2, '0');
-				let amount = res.data[fn];
-				html += `<div class="col-3 col-md-2 col-lg-1 border-bottom border-end py-2">
-							<div class="fw-bold mb-1" style="color: #555;">${i}월</div>
+			let totalAmount = 0;
+			
+			res.data.forEach(function(item) {
+				let category = item.CATEGORY_NM;
+				let amount = item.TOTAL;
+				
+				html += `<div class="col-4 col-md-3 col-lg-2 border-bottom border-end py-2">
+							<div class="fw-bold mb-1" style="color: #555;">${category}</div>
 							<div style="font-size: 0.8rem; word-break: break-all;">${formatter.format(amount)}원</div>
 						 </div>`;
 				
-				labels.push(i + '월');
+				labels.push(category);
 				data.push(amount);
-			}
+				totalAmount += amount;
+			});
+			
 			$('#monthly-data').html(html);
-			fn_drawChart(labels, data);
+			fn_drawChart(labels, data, totalAmount);
 		})
 		.catch(e => {
 			console.log(e);
 		})
 	}
 	
-	function fn_drawChart(labels, data) {
+	function fn_drawChart(labels, data, totalAmount) {
 		const ctx = document.getElementById('myChart').getContext('2d');
 		
 		if (myChart) {
 			myChart.destroy();
 		}
+		
+		const backgroundColors = [
+			'#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF',
+			'#BDB2FF', '#FFC6FF', '#D4C1EC', '#F4978E', '#FBC4AB', '#80CED7'
+		];
 
 		myChart = new Chart(ctx, {
-			type: 'bar',
+			type: 'doughnut',
 			data: {
 				labels: labels,
 				datasets: [{
-					label: '월별 합계',
+					label: '카테고리별 합계',
 					data: data,
-					backgroundColor: 'rgba(54, 162, 235, 0.2)',
-					borderColor: 'rgba(54, 162, 235, 1)',
+					backgroundColor: backgroundColors,
 					borderWidth: 1
 				}]
 			},
 			options: {
-				indexAxis: 'y',
 				responsive: true,
 				maintainAspectRatio: false,
-				scales: {
-					x: {
-						beginAtZero: true
-					},
-					y: {
-						reverse: true,
-						ticks: {
-							autoSkip: false
-						}
+				cutout: '60%',
+				plugins: {
+					legend: {
+						position: 'bottom',
 					}
 				}
-			}
+			},
+			plugins: [{
+				id: 'textCenter',
+				beforeDraw: function(chart) {
+					var width = chart.width,
+						height = chart.height,
+						ctx = chart.ctx;
+
+					ctx.restore();
+					var fontSize = (Math.min(width, height) / 200).toFixed(2);
+					ctx.font = "bold " + fontSize + "em sans-serif";
+					ctx.textBaseline = "middle";
+					ctx.fillStyle = "#333";
+					
+					var text = formatter.format(totalAmount) + "원";
+					
+					var textWidth = ctx.measureText(text).width;
+					var holeSize = Math.min(width, height) * 0.5;
+					if (textWidth > holeSize) {
+						fontSize = (fontSize * (holeSize / textWidth)).toFixed(2);
+						ctx.font = "bold " + fontSize + "em sans-serif";
+					}
+					
+					var textX = Math.round((width - ctx.measureText(text).width) / 2),
+						textY = height / 2;
+					ctx.fillText(text, textX, textY);
+					ctx.save();
+				}
+			}]
 		});
 	}
 </script>
@@ -87,11 +119,27 @@
     <div class="container">
     	<div class="row g-2 mt-4 mb-3 align-items-center">
 			<div class="col-12 col-md-3 text-center text-md-start">
-		    	<select class="form-select" id="select-year" aria-label="Default select example">
-					<option value="2026" selected>2026</option>
-					<option value="2027">2027</option>
-				</select>
-				
+				<div class="input-group">
+			    	<select class="form-select" id="select-year" aria-label="Default select example">
+						<option value="2026" selected>2026</option>
+						<option value="2027">2027</option>
+					</select>
+					<select class="form-select" id="select-month" aria-label="Default select example">
+						<option value="" selected>전체</option>
+						<option value="01">1월</option>
+						<option value="02">2월</option>
+						<option value="03">3월</option>
+						<option value="04">4월</option>
+						<option value="05">5월</option>
+						<option value="06">6월</option>
+						<option value="07">7월</option>
+						<option value="08">8월</option>
+						<option value="09">9월</option>
+						<option value="10">10월</option>
+						<option value="11">11월</option>
+						<option value="12">12월</option>
+					</select>
+				</div>
 			</div>
 		</div>
 		<div class="row mb-4">
@@ -101,13 +149,12 @@
 		</div>
 		
 		<div id="monthly-data" class="row g-0 text-center border-top border-start mb-5">
-			<!-- 데이터가 동적으로 들어갑니다 -->
 		</div>
 		
     </div>
 	<script th:inline="javascript">
-		$('#select-year').change(function() {
-			fn_monthlyAmount();
+		$('#select-year, #select-month').change(function() {
+			fn_getCategoryMonthlyAmount();
 		})
 	</script>
 </body>
