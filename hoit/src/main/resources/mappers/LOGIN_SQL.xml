@@ -38,4 +38,9 @@
 		SET login_yn = 'N'
 		WHERE user_id = #{USER_ID}
 	</update>
+	<update id="userLogin" parameterType="map">
+		UPDATE T_USER
+		SET login_yn = 'N'
+		WHERE user_id = #{USER_ID}
+	</update>
 </mapper>
