@@ -43,4 +43,8 @@
 		SET login_yn = 'N'
 		WHERE user_id = #{USER_ID}
 	</update>
+	<insert id="saveClientIp" parameterType="map">
+		INSERT INTO T_VISITOR
+		(IP) VALUES (#{IP})
+	</insert>
 </mapper>

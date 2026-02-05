@@ -13,4 +13,6 @@ public interface LoginMapper {
 	Map<String, Object> getUserById(Map<String, Object> map);
 	
 	void userJoin(Map<String, Object> map) throws Exception;
+	
+	void saveClientIp(Map<String, Object> map);
 }
