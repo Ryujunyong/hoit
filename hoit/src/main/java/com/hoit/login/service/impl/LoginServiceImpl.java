@@ -29,9 +29,4 @@ public class LoginServiceImpl implements LoginService {
 		loginMapper.userJoin(map);
 	}
 	
-	@Override
-	public void saveClientIp(Map<String, Object> map) {
-		loginMapper.saveClientIp(map);
-	}
-	
 }

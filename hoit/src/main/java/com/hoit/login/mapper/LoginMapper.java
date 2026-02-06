@@ -14,5 +14,4 @@ public interface LoginMapper {
 	
 	void userJoin(Map<String, Object> map) throws Exception;
 	
-	void saveClientIp(Map<String, Object> map);
 }
