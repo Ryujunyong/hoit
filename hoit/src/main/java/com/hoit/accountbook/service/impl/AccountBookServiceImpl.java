@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.hoit.accountbook.mapper.AccountBookMapper;
 import com.hoit.accountbook.service.AccountBookService;
+import com.hoit.common.CursorRequest;
+import com.hoit.common.CursorResponse;
 import com.hoit.util.UniqueKey;
 
 @Service
@@ -20,8 +22,36 @@ public class AccountBookServiceImpl implements AccountBookService {
 	private AccountBookMapper accountBookMapper;
 	
 	@Override
-	public List accountBookList() {
-		return accountBookMapper.accountBookList();
+	public List accountBookList(Map<String, Object> map) {
+		return accountBookMapper.accountBookList(map);
+	}
+	
+	@Override
+	public CursorResponse getScrollList(Map<String, Object> map) {
+		int size = 10;
+		if(map.containsKey("size")) {
+			size = Integer.parseInt(String.valueOf(map.get("size")));
+		}
+		map.put("size", size + 1); // 다음 페이지 존재 여부 확인을 위해 1개 더 조회
+		
+		List<Map<String, Object>> list = accountBookMapper.selectScrollList(map);
+		boolean hasNext = false;
+		Map<String, Object> nextCursor = new HashMap<>();
+		
+		if (list.size() > size) {
+			hasNext = true;
+			list.remove(size);
+		}
+		if (!list.isEmpty()) {
+			nextCursor.put("lastAccountDate", list.get(list.size() - 1).get("ACCOUNT_DATE"));
+			nextCursor.put("lastAccountId", list.get(list.size() - 1).get("ACCOUNT_ID"));
+		}
+		
+		return CursorResponse.<Map<String, Object>>builder()
+				.data(list)
+				.nextCursorId(nextCursor)
+				.hasNext(hasNext)
+				.build();
 	}
 
 	@Override

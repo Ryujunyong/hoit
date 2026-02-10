@@ -14,6 +14,15 @@
 			$('#SAVE_ASSET').prop("disabled", false);
 			$('#SAVE_BUTTON').prop("disabled", false);
 		}
+        const target = document.getElementById('scroll-anchor');
+        if(target) observer.observe(target);
+        
+        // 초기 리스트가 있을 경우 마지막 항목을 기준으로 커서 설정
+        const $lastRow = $('.account-list tr').last();
+        if ($lastRow.length > 0) {
+        	lastAccountDate = $lastRow.data('account-date');
+        	lastAccountId = $lastRow.data('account-id');
+        }
 	});
 	function fn_write() {
 		let description = $("input[name=DESCRIPTION]").val();
@@ -23,17 +32,8 @@
 				DESCRIPTION: description,
 				CATEGORY_ID: $('#CATEGORY_NM').val()
 		}
-		fetch('/hoit/accountBook/write_submit.do', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json;charset=utf-8',
-			},
-			body: JSON.stringify(sendData)
-		})
+		axios.post('/hoit/accountBook/write_submit.do', sendData)
 		.then(res => {
-			if (!res.ok) {
-				throw new Error('에러 발생!');
-			}
 			location.reload();
 		})
 		.catch(e => {
@@ -46,20 +46,8 @@
 	    const sendData = {
 	    	CURRENT_BALANCE: cleanNum,
 	    };
-		fetch('/hoit/accountBook/chargeCash_submit.do', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json;charset=utf-8',
-			},
-			body: JSON.stringify(sendData),
-		})
+		axios.post('/hoit/accountBook/chargeCash_submit.do', sendData)
 		.then(res => {
-			if (!res.ok) {
-				throw new Error('에러 발생!');
-			}
-			return res.json();
-		})
-		.then(data => {
 			location.reload();
 		})
 		.catch(e => {
@@ -130,11 +118,25 @@
           });
     }
     
+    // 무한 스크롤 관련 변수
+    let lastAccountDate = null;
+    let lastAccountId = null;
+    let isFetching = false;
+    let hasNext = true;
+
+    // IntersectionObserver 설정
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !isFetching && hasNext) {
+                fn_scroll_list();
+            }
+        });
+    }, { threshold: 0.5 });
+
 </script>
 <body>
     <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
     <div class="container">
-		<!-- 상단 충전 및 정보 영역 -->
 		<div class="row g-2 mt-4 mb-3 align-items-center">
 			<div class="col-12 col-md-3 text-center text-md-start">
 				<span id="date"></span>
@@ -146,15 +148,8 @@
 					<button class="btn btn-outline-info" id="SAVE_BUTTON" onclick="fn_saveAsset();">충전</button>
 				</div>
 			</div>
-			<!-- <div class="col-12 col-md-4">
-				<div class="input-group">
-					<input class="form-control" id="CASHBACK_AMOUNT" name="CASHBACK_AMOUNT" placeholder="캐시백">
-					<button class="btn btn-outline-info" onclick="fn_chargeCashBack();">충전</button>
-				</div>
-			</div> -->
 		</div>
 
-		<!-- 사용 내역 등록 영역 -->
 		<div class="row g-2 mb-4 align-items-center">
 			<div class="col-12 col-md-3">
 				<div class="input-group">
@@ -183,8 +178,6 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- 테이블 영역 -->
 		<div>
 			<table class="table table-bordered table-hover table-sm" style="width: 100%; text-align: center;">
 				<thead class="table-light">
@@ -197,9 +190,9 @@
 						<th style="white-space: nowrap;">관리</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody class="account-list">
 					<th:block th:if="${!#lists.isEmpty(list)}">
-						<tr th:each="list : ${list}">
+						<tr th:each="list : ${list}" th:data-account-id="${list.ACCOUNT_ID}" th:data-account-date="${list.ACCOUNT_DATE}">
 							<td style="vertical-align: middle;" th:text="${list.CATEGORY_NM}"></td>
 							<td style="vertical-align: middle;" th:text="|${#numbers.formatInteger(list.AMOUNT, 3, 'COMMA')}원|"></td>
 							<td style="word-break: break-all; vertical-align: middle;" th:text="${list.DESCRIPTION}"></td>
@@ -214,9 +207,14 @@
 					</th:block>
 				</tbody>
 			</table>
+			<div id="scroll-anchor" style="height: 20px; text-align: center;">
+				<div id="scroll-spinner" class="spinner-border text-primary" role="status" style="display: none;">
+					<span class="visually-hidden">Loading...</span>
+				</div>
+			</div>
 		</div>
 	</div>
-	<script th:inline="javascript" defer>
+	<script th:inline="javascript">
 	const formatter = new Intl.NumberFormat('ko-KR');
 	let current_balance = '[[${cb.CURRENT_BALANCE}]]';
 	$('#CURRENT_BALANCE').val(formatter.format(current_balance)+'원');
@@ -262,6 +260,117 @@
 	$('#select-account').on('change', function() {
 		calcTotal();
 	});
+	/*
+	function fn_page(pageNo) {
+	    var submitObj = new Object();
+	    submitObj.pageIndex = pageNo;
+	    axios.post('/hoit/accountBook/pagingAjax.do', submitObj)
+	    .then(res => {
+	        var data = res.data;
+	        var result = new Array;
+	        result = data.list;
+	        var pageVO = JSON.parse(data.pageVO);
+	        var endPage = pageVO.endPage;
+	        var startData = pageVO.startData;
+	        var startButtonData = pageVO.startData - 1;
+	        var endData = pageVO.endData;
+	        var endButtonData = pageVO.pageIndex + 1;
+	        var pageIndex = pageVO.pageIndex;
+	        var resultCnt = data.resultCnt;
+	        var totalPageCnt = data.totalPageCnt;
+	        var recordCountPerPage = pageVO.recordCountPerPage;
+	        var content = '';
+	        var content2 = '';
+	        console.log(`%c ********** 정상응답@@@@ ${JSON.stringify(pageVO, null, 2)} **********`, `background:seagreen;color:white`);
+	        $.each(result, function(index, item) {
+	            content += `<tr>`;
+	            content += `<td style='vertical-align: middle;' th:text='${item.CATEGORY_NM}'></td>`
+	            content += `<td style="vertical-align: middle;">${formatAmount(item.AMOUNT)}원</td>`;
+	            content += `<td style='word-break: break-all; vertical-align: middle;' th:text='${item.DESCRIPTION}'></td>`
+	            content += `<td style='vertical-align: middle; white-space: nowrap;' th:text='${item.ACCOUNT_DATE}'></td>`
+	            content += `<td class='d-none d-md-table-cell' th:text='${item.CREATE_DT}'></td>`
+	            content += `<td><button type='button' id='updateBtn' onclick='fn_updateUser(this);'>수정</button></td>`;
+	            content += `<td><button type='button' id='deleteBtn' onclick='fn_delete("${item.sabun}");'>삭제</button></td>`;
+	            content += `</tr>`;
+	        });
+	        $(".account-list").html(content);
+	        
+	        content2 = `<div class="d-flex justify-content-center position-relative w-100">`;
+	        content2 += `<nav aria-label="Page navigation"><ul class="pagination mb-0">`;
+	        
+	        if(pageVO.prev) {
+	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(1); return false;"><i class="fas fa-angle-double-left"></i></a></li>`;
+	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${startData - 1}); return false;"><i class="fas fa-angle-left"></i></a></li>`;
+	        }
+	        for(var num=startData; num<=endData; num++) {
+	            if(num == pageIndex) {
+	                content2 += `<li class="page-item active"><span class="page-link">${num}</span></li>`;
+	            } else {
+	                content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${num}); return false;">${num}</a></li>`;
+	            }
+	        }
+	        if(pageVO.next) {
+	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${endButtonData}); return false;"><i class="fas fa-angle-right"></i></a></li>`;
+	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${pageVO.endPage}); return false;"><i class="fas fa-angle-double-right"></i></a></li>`;
+	        }
+	        content2 += `</ul></nav>`;
+	        content2 += `<div class="position-absolute end-0 top-50 translate-middle-y"><button class='btn_excel' type="button" onclick="location.href='/excelDown.do'"></button></div>`;
+	        content2 += `</div>`;
+	        $(".account-list-paging").html(content2);
+	    })
+	    .catch(e => {
+	    })
+	}
+	*/
+	function fn_scroll_list() {
+		isFetching = true;
+		$('#scroll-spinner').show();
+		
+		const sendData = {
+			size: 10,
+			lastAccountDate: lastAccountDate,
+			lastAccountId: lastAccountId
+		};
+		
+		axios.post('/hoit/accountBook/scrollList.do', sendData)
+		.then(res => {
+			const data = res.data;
+			const list = data.data;
+			hasNext = data.hasNext;
+			if(data.nextCursorId) {
+				lastAccountDate = data.nextCursorId.lastAccountDate;
+				lastAccountId = data.nextCursorId.lastAccountId;
+			}
+			
+			let content = '';
+			list.forEach(item => {
+				content += `<tr>`;
+	            content += `<td style='vertical-align: middle;'>${item.CATEGORY_NM}</td>`
+	            content += `<td style="vertical-align: middle;">${formatter.format(item.AMOUNT)}원</td>`;
+	            content += `<td style='word-break: break-all; vertical-align: middle;'>${item.DESCRIPTION}</td>`
+	            content += `<td style='vertical-align: middle; white-space: nowrap;'>${item.ACCOUNT_DATE}</td>`
+	            content += `<td class='d-none d-md-table-cell'>${item.CREATE_DT}</td>`
+	            content += `<td style="vertical-align: middle;">`;
+	            if(item.ACCOUNT_TYPE != 'S') {
+	            	content += `<button type="button" class="btn btn-outline-info btn-sm" data-account-id="${item.ACCOUNT_ID}" data-asset-id="${item.ASSET_ID}" data-amount="${item.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button>`;
+	            }
+	            content += `</td></tr>`;
+			});
+			
+			$(".account-list").append(content);
+			isFetching = false;
+			$('#scroll-spinner').hide();
+			
+			if(!hasNext) {
+				observer.disconnect();
+			}
+		})
+		.catch(err => {
+			console.error(err);
+			isFetching = false;
+			$('#scroll-spinner').hide();
+		});
+	}
 	</script>
 </body>
 </html>

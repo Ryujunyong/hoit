@@ -8,7 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AccountBookMapper {
 	// 가계부 목록 조회
-	List accountBookList();
+	List accountBookList(Map<String, Object> map);
+	// 가계부 무한스크롤 목록 조회
+	List<Map<String, Object>> selectScrollList(Map<String, Object> map);
 	// 가계부 갯수
 	int accountBookCnt();
 	// 가계부 작성

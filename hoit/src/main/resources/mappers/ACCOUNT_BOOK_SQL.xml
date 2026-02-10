@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hoit.accountbook.mapper.AccountBookMapper">
-	<select id="accountBookList" resultType="map">
+	<select id="accountBookList" resultType="map" parameterType="map">
 		SELECT A.ACCOUNT_ID
 			 , A.ASSET_ID
 			 , A.CATEGORY_ID
@@ -14,6 +14,27 @@
 		FROM T_ACCOUNT_BOOK A
 		INNER JOIN T_CATEGORY B
 		ON A.CATEGORY_ID = B.CATEGORY_ID
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	<select id="selectScrollList" resultType="map" parameterType="map">
+		SELECT A.ACCOUNT_ID
+			 , A.ASSET_ID
+			 , A.CATEGORY_ID
+			 , A.ACCOUNT_TYPE
+			 , A.ACCOUNT_DATE
+			 , A.AMOUNT
+			 , A.DESCRIPTION
+			 , A.CREATE_DT
+			 , B.CATEGORY_NM
+		FROM T_ACCOUNT_BOOK A
+		INNER JOIN T_CATEGORY B
+		ON A.CATEGORY_ID = B.CATEGORY_ID
+		WHERE 1=1
+		<if test="lastAccountDate != null and lastAccountDate != ''">
+			AND (A.ACCOUNT_DATE &lt; #{lastAccountDate} OR (A.ACCOUNT_DATE = #{lastAccountDate} AND A.ACCOUNT_ID &lt; #{lastAccountId}))
+		</if>
+		ORDER BY A.ACCOUNT_DATE DESC, A.ACCOUNT_ID DESC
+		LIMIT #{size}
 	</select>
 	<select id="getCurrentMoney" resultType="map">
 		SELECT ASSET_ID
@@ -21,9 +42,11 @@
 			 , CURRENT_BALANCE
 		FROM T_ASSETS
 	</select>
-	<select id="accountBookCnt" resultType="map" parameterType="map">
+	<select id="accountBookCnt" resultType="int">
 		SELECT COUNT(*)
-		FROM T_ACCOUNT_BOOK
+		FROM T_ACCOUNT_BOOK A
+		INNER JOIN T_CATEGORY B
+		ON A.CATEGORY_ID = B.CATEGORY_ID
 	</select>
 	
 	<select id="getTotalAssets" resultType="map" parameterType="map">

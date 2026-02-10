@@ -453,25 +453,43 @@
 
 /*** Single Page Start ***/
 .pagination {
-    display: inline-block;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
 }
   
-.pagination a {
-    color: var(--bs-dark);
-    padding: 10px 16px;
+.pagination .page-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
     text-decoration: none;
-    transition: 0.5s;
-    border: 1px solid var(--bs-secondary);
-    margin: 0 4px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s;
+    margin: 0 3px;
+    border-radius: 50% !important;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    font-weight: 600;
 }
   
-.pagination a.active {
-    background-color: var(--bs-primary);
-    color: var(--bs-light);
-    border: 1px solid var(--bs-secondary);
+.pagination .page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
   
-.pagination a:hover:not(.active) {background-color: var(--bs-primary)}
+.pagination .page-link:hover {
+    z-index: 2;
+    color: var(--bs-primary);
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
 
 .nav.nav-tabs .nav-link.active {
     border-bottom: 2px solid var(--bs-secondary) !important;
@@ -496,7 +514,7 @@
 
 .table-container {
     width: 100%;
-    overflow-x: auto; /* 내용이 많으면 가로 스크롤 생성 */
+    overflow-x: auto; 
 }
 
 table {
@@ -506,31 +524,24 @@ table {
 
 input, select, textarea {
     font-size: 16px;
-    width: 100%; /* 박스가 부모 너비를 넘지 않도록 */
-    box-sizing: border-box; /* 패딩이 너비에 영향을 주지 않도록 */
+    width: 100%;
+    box-sizing: border-box; 
 }
-/*** Footer End ***/
 
 input {
-    /* 브라우저 기본 디자인 제거 (둥근 모서리, 그림자 등) */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
 
-    /* 높이를 고정하고 싶다면 height 사용 (보통 40~45px이 모바일 터치에 적당) */
     height: 45px; 
     
-    /* 패딩 때문에 커지는 것 방지 */
     box-sizing: border-box; 
     
-    /* 테두리와 둥글기 직접 지정 */
     border: 1px solid #ccc;
     border-radius: 4px;
     
-    /* 폰트 크기 (16px 미만이면 아이폰에서 자동 줌 현상 발생) */
     font-size: 16px;
     
-    /* 가로 꽉 차게 */
     width: 100%;
     padding: 0 10px;
 }
@@ -546,11 +557,10 @@ input {
     align-items: center;
 }
 
-/* 2. 브랜드 로고(h1)가 모바일에서 너무 크지 않게 조절 */
 .navbar-brand h1 {
-    font-size: 1.5rem; /* 모바일에서는 조금 작게 */
+    font-size: 1.5rem; 
     font-weight: 700;
-    white-space: nowrap; /* 로고 글자 줄바꿈 방지 */
+    white-space: nowrap; 
     margin-bottom: 0;
     line-height: 1;
 }
@@ -563,7 +573,6 @@ input {
     align-items: center;
 }
 
-/* 3. 모바일 메뉴 스타일 (화면이 작을 때만 적용) */
 @media (max-width: 1199.98px) {
     .navbar-collapse {
         background: #fff;
@@ -574,9 +583,9 @@ input {
     }
 
     .nav-item.nav-link {
-        padding: 12px 20px !important; /* 터치하기 편하게 간격 조정 */
+        padding: 12px 20px !important; 
         border-bottom: 1px solid #f8f9fa;
-        width: 100%; /* 가로 꽉 차게 */
+        width: 100%; 
         display: block;
     }
 
@@ -585,10 +594,9 @@ input {
     }
 }
 
-/* 4. PC용 스타일 (1200px 이상) */
 @media (min-width: 1200px) {
     .navbar-brand h1 {
-        font-size: 2.5rem; /* PC에서는 원래 크기로 */
+        font-size: 2.5rem;
     }
     
     #menuGo {
@@ -601,18 +609,16 @@ input {
     }
 }
 
-/* 1. 상단 고정 네비게이션 높이만큼 본문 내리기 */
 #main {
-    padding-top: 70px; /* 네비게이션 높이에 맞춰 조절 (PC) */
+    padding-top: 70px;
 }
 
 @media (max-width: 991.98px) {
     #main {
-        padding-top: 60px; /* 모바일에서는 네비게이션이 작아지므로 조금 줄임 */
+        padding-top: 60px;
     }
 }
 
-/* 2. 컨테이너 여백 최적화 (모바일에서 양옆이 너무 비지 않게) */
 .container {
     padding-left: 20px !important;
     padding-right: 20px !important;
@@ -624,14 +630,12 @@ input {
         padding-right: 15px !important;
     }
     
-    /* py-5가 모바일에서는 너무 길어서 화면을 많이 차지함 */
     .py-5 {
         padding-top: 2rem !important;
         padding-bottom: 2rem !important;
     }
 }
 
-/* 3. 내부 이미지나 박스가 화면을 넘지 않도록 설정 */
 #main img, 
 #main table, 
 #main div {
@@ -639,12 +643,10 @@ input {
     box-sizing: border-box;
 }
 
-/* 4. Footer가 바닥에 붙어있지 않을 때를 대비한 최소 높이 */
 #main {
-    min-height: calc(100vh - 200px); /* 푸터 높이에 따라 조절 */
+    min-height: calc(100vh - 200px);
 }
 
-/* Bootstrap Grid System의 row가 max-width: 100%로 인해 깨지는 현상 방지 */
 #main .row {
     max-width: none;
 }

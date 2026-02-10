@@ -3,9 +3,13 @@ package com.hoit.accountbook.service;
 import java.util.List;
 import java.util.Map;
 
+import com.hoit.common.CursorRequest;
+import com.hoit.common.CursorResponse;
+
 public interface AccountBookService {
 	
-	List accountBookList();
+	List accountBookList(Map<String, Object> map);
+	CursorResponse getScrollList(Map<String, Object> map);
 	int accountBookCnt();
 	void writeAccountBook(Map<String, Object> map);
 	void edieAccountBook(Map<String, Object> map);
