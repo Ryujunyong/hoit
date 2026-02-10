@@ -23,12 +23,14 @@ public class AccountBookServiceImpl implements AccountBookService {
 	
 	@Override
 	public List accountBookList(Map<String, Object> map) {
+		map.put("recordCountPerPage", 10);
+		map.put("firstIndex", 0);
 		return accountBookMapper.accountBookList(map);
 	}
 	
 	@Override
 	public CursorResponse getScrollList(Map<String, Object> map) {
-		int size = 10;
+		int size = 0;
 		if(map.containsKey("size")) {
 			size = Integer.parseInt(String.valueOf(map.get("size")));
 		}
@@ -43,8 +45,8 @@ public class AccountBookServiceImpl implements AccountBookService {
 			list.remove(size);
 		}
 		if (!list.isEmpty()) {
-			nextCursor.put("lastAccountDate", list.get(list.size() - 1).get("ACCOUNT_DATE"));
-			nextCursor.put("lastAccountId", list.get(list.size() - 1).get("ACCOUNT_ID"));
+			nextCursor.put("lastAccountDate", String.valueOf(list.get(list.size() - 1).get("ACCOUNT_DATE")));
+			nextCursor.put("lastAccountId", String.valueOf(list.get(list.size() - 1).get("ACCOUNT_ID")));
 		}
 		
 		return CursorResponse.<Map<String, Object>>builder()

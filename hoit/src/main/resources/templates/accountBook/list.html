@@ -14,15 +14,15 @@
 			$('#SAVE_ASSET').prop("disabled", false);
 			$('#SAVE_BUTTON').prop("disabled", false);
 		}
-        const target = document.getElementById('scroll-anchor');
-        if(target) observer.observe(target);
         
-        // 초기 리스트가 있을 경우 마지막 항목을 기준으로 커서 설정
         const $lastRow = $('.account-list tr').last();
         if ($lastRow.length > 0) {
         	lastAccountDate = $lastRow.data('account-date');
         	lastAccountId = $lastRow.data('account-id');
         }
+        
+        const target = document.getElementById('scroll-anchor');
+        if(target) observer.observe(target);
 	});
 	function fn_write() {
 		let description = $("input[name=DESCRIPTION]").val();
@@ -118,20 +118,6 @@
           });
     }
     
-    // 무한 스크롤 관련 변수
-    let lastAccountDate = null;
-    let lastAccountId = null;
-    let isFetching = false;
-    let hasNext = true;
-
-    // IntersectionObserver 설정
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !isFetching && hasNext) {
-                fn_scroll_list();
-            }
-        });
-    }, { threshold: 0.5 });
 
 </script>
 <body>
@@ -208,13 +194,14 @@
 				</tbody>
 			</table>
 			<div id="scroll-anchor" style="height: 20px; text-align: center;">
-				<div id="scroll-spinner" class="spinner-border text-primary" role="status" style="display: none;">
+				<div id="scroll-trigger" class="spinner-border text-primary" role="status" style="display: none;">
 					<span class="visually-hidden">Loading...</span>
 				</div>
 			</div>
 		</div>
 	</div>
 	<script th:inline="javascript">
+	
 	const formatter = new Intl.NumberFormat('ko-KR');
 	let current_balance = '[[${cb.CURRENT_BALANCE}]]';
 	$('#CURRENT_BALANCE').val(formatter.format(current_balance)+'원');
@@ -322,55 +309,74 @@
 	    })
 	}
 	*/
-	function fn_scroll_list() {
-		isFetching = true;
-		$('#scroll-spinner').show();
-		
-		const sendData = {
-			size: 10,
-			lastAccountDate: lastAccountDate,
-			lastAccountId: lastAccountId
-		};
-		
-		axios.post('/hoit/accountBook/scrollList.do', sendData)
-		.then(res => {
-			const data = res.data;
-			const list = data.data;
-			hasNext = data.hasNext;
-			if(data.nextCursorId) {
-				lastAccountDate = data.nextCursorId.lastAccountDate;
-				lastAccountId = data.nextCursorId.lastAccountId;
-			}
-			
-			let content = '';
-			list.forEach(item => {
-				content += `<tr>`;
-	            content += `<td style='vertical-align: middle;'>${item.CATEGORY_NM}</td>`
-	            content += `<td style="vertical-align: middle;">${formatter.format(item.AMOUNT)}원</td>`;
-	            content += `<td style='word-break: break-all; vertical-align: middle;'>${item.DESCRIPTION}</td>`
-	            content += `<td style='vertical-align: middle; white-space: nowrap;'>${item.ACCOUNT_DATE}</td>`
-	            content += `<td class='d-none d-md-table-cell'>${item.CREATE_DT}</td>`
-	            content += `<td style="vertical-align: middle;">`;
-	            if(item.ACCOUNT_TYPE != 'S') {
-	            	content += `<button type="button" class="btn btn-outline-info btn-sm" data-account-id="${item.ACCOUNT_ID}" data-asset-id="${item.ASSET_ID}" data-amount="${item.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button>`;
-	            }
-	            content += `</td></tr>`;
-			});
-			
-			$(".account-list").append(content);
-			isFetching = false;
-			$('#scroll-spinner').hide();
-			
-			if(!hasNext) {
-				observer.disconnect();
-			}
-		})
-		.catch(err => {
-			console.error(err);
-			isFetching = false;
-			$('#scroll-spinner').hide();
-		});
+	let lastAccountDate = null;
+	let lastAccountId = null;
+	let isLoading = false;
+	let hasNext = true;
+
+	async function fetchPosts() {
+	    if (isLoading || !hasNext) return;
+
+	    isLoading = true;
+	    try {
+
+			const sendData = {
+	            size: 5,
+	            lastAccountDate: lastAccountDate,
+	            lastAccountId: lastAccountId
+	        };
+
+	        const response = await axios.post('/hoit/accountBook/scrollList.do', sendData);
+	        const result = response.data; 
+
+	        renderPosts(result.data);
+			if (result.nextCursorId) {
+	            lastAccountDate = result.nextCursorId.lastAccountDate;
+	            lastAccountId = result.nextCursorId.lastAccountId;
+	        }
+	        hasNext = result.hasNext;
+
+	        if (!hasNext) {
+	            $('#scroll-trigger').hide();
+	        }
+
+	    } catch (error) {
+	        console.error('Error fetching posts:', error);
+	    } finally {
+	        isLoading = false;
+	    }
 	}
+
+	function renderPosts(list) {
+		let content = '';
+	    list.forEach(item => {
+	    	console.log(item.ACCOUNT_TYPE)
+        	content += `<tr>`;
+            content += `<td style='vertical-align: middle;'>${item.CATEGORY_NM}</td>`;
+            content += `<td style="vertical-align: middle;">${formatter.format(item.AMOUNT)}원</td>`;
+            content += `<td style='word-break: break-all; vertical-align: middle;'>${item.DESCRIPTION}</td>`;
+            content += `<td style='vertical-align: middle; white-space: nowrap;'>${item.ACCOUNT_DATE}</td>`;
+            content += `<td class='d-none d-md-table-cell'>${item.CREATE_DT}</td>`;
+           	if(item.ACCOUNT_TYPE != 'S') {
+   	            content += `<td style='vertical-align: middle;'><button type="button" class="btn btn-outline-info btn-sm" data-account-id="${item.ACCOUNT_ID}" data-asset-id="${item.ASSET_ID}" data-amount="${item.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button></td>`;
+   	        }
+	        content += `</tr>`;
+	    });
+	    $(".account-list").append(content);
+	}
+
+	const observerOptions = {
+	    root: null,
+	    threshold: 0.1
+	};
+
+	const observer = new IntersectionObserver((entries) => {
+	    entries.forEach(entry => {
+	        if (entry.isIntersecting && hasNext) {
+	            fetchPosts();
+	        }
+	    });
+	}, observerOptions);
 	</script>
 </body>
 </html>
