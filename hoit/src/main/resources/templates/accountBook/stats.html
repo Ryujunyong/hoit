@@ -8,6 +8,11 @@
 	const formatter = new Intl.NumberFormat('ko-KR');
 	let myChart = null;
 	
+	const backgroundColors = [
+		'#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF',
+		'#BDB2FF', '#FFC6FF', '#D4C1EC', '#F4978E', '#FBC4AB', '#80CED7'
+	];
+
 	$(function() {
 		fn_getCategoryMonthlyAmount();		
 	});
@@ -26,20 +31,34 @@
 			let html = '';
 			let labels = [];
 			let data = [];
-			let totalAmount = 0;
 			
-			res.data.forEach(function(item) {
+			let totalAmount = res.data.reduce((acc, item) => acc + item.TOTAL, 0);
+			
+			res.data.forEach(function(item, index) {
 				let category = item.CATEGORY_NM;
 				let amount = item.TOTAL;
+				let color = backgroundColors[index % backgroundColors.length];
+				let percentage = (totalAmount > 0) ? ((amount / totalAmount) * 100).toFixed(1) : 0;
 				
-				html += `<div class="col-4 col-md-3 col-lg-2 border-bottom border-end py-2">
-							<div class="fw-bold mb-1" style="color: #555;">${category}</div>
-							<div style="font-size: 0.8rem; word-break: break-all;">${formatter.format(amount)}원</div>
-						 </div>`;
+				html += `
+					<div class="list-group-item border-0 px-4 py-3">
+						<div class="d-flex justify-content-between align-items-center mb-2">
+							<div class="d-flex align-items-center">
+								<span class="d-inline-block rounded-circle me-2" style="width: 12px; height: 12px; background-color: ${color};"></span>
+								<span class="fw-bold text-dark">${category}</span>
+							</div>
+							<div class="text-end">
+								<span class="fw-bold">${formatter.format(amount)}원</span>
+								<span class="text-muted small ms-1">(${percentage}%)</span>
+							</div>
+						</div>
+						<div class="progress" style="height: 6px; background-color: #f0f0f0;">
+							<div class="progress-bar" role="progressbar" style="width: ${percentage}%; background-color: ${color}; border-radius: 10px;" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+						</div>
+					</div>`;
 				
 				labels.push(category);
 				data.push(amount);
-				totalAmount += amount;
 			});
 			
 			$('#monthly-data').html(html);
@@ -57,11 +76,6 @@
 			myChart.destroy();
 		}
 		
-		const backgroundColors = [
-			'#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF',
-			'#BDB2FF', '#FFC6FF', '#D4C1EC', '#F4978E', '#FBC4AB', '#80CED7'
-		];
-
 		myChart = new Chart(ctx, {
 			type: 'doughnut',
 			data: {
@@ -115,16 +129,16 @@
 	}
 </script>
 <body>
-    <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
-    <div class="container">
-    	<div class="row g-2 mt-4 mb-3 align-items-center">
-			<div class="col-12 col-md-3 text-center text-md-start">
+    <h2 class="text-center fw-bold mb-4" style="margin-top: 50px;">지출 통계</h2>
+    <div class="container" style="max-width: 600px;">
+    	<div class="row justify-content-center mb-4">
+			<div class="col-auto">
 				<div class="input-group">
-			    	<select class="form-select" id="select-year" aria-label="Default select example">
+			    	<select class="form-select border-0 bg-light fw-bold" id="select-year" style="cursor: pointer;">
 						<option value="2026" selected>2026</option>
 						<option value="2027">2027</option>
 					</select>
-					<select class="form-select" id="select-month" aria-label="Default select example">
+					<select class="form-select border-0 bg-light fw-bold" id="select-month" style="cursor: pointer;">
 						<option value="" selected>전체</option>
 						<option value="01">1월</option>
 						<option value="02">2월</option>
@@ -142,13 +156,21 @@
 				</div>
 			</div>
 		</div>
-		<div class="row mb-4">
-			<div class="col-12" style="height: 400px;">
-				<canvas id="myChart"></canvas>
+		
+		<div class="card shadow-sm border-0 mb-4 rounded-4">
+			<div class="card-body p-4">
+				<div style="height: 300px; position: relative;">
+					<canvas id="myChart"></canvas>
+				</div>
 			</div>
 		</div>
 		
-		<div id="monthly-data" class="row g-0 text-center border-top border-start mb-5">
+		<div class="card shadow-sm border-0 rounded-4 mb-5">
+			<div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+				<h5 class="fw-bold mb-0">상세 내역</h5>
+			</div>
+			<div id="monthly-data" class="card-body p-0 list-group list-group-flush rounded-bottom-4 py-2">
+			</div>
 		</div>
 		
     </div>

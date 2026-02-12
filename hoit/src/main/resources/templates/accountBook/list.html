@@ -3,7 +3,7 @@
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	  layout:decorate="~{layouts/default.html}"
       layout:fragment="Content">
-<script type="text/javascript" defer>
+<script type="text/javascript">
 
 	$(function() {
 		$('#AMOUNT').focus();
@@ -23,7 +23,7 @@
         
         const target = document.getElementById('scroll-anchor');
         if(target) observer.observe(target);
-	});
+	});   
 	function fn_write() {
 		let description = $("input[name=DESCRIPTION]").val();
 		const sendData = {
@@ -117,62 +117,71 @@
             console.log("err", err);
           });
     }
-    
-
+	
 </script>
 <body>
     <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
     <div class="container">
-		<div class="row g-2 mt-4 mb-3 align-items-center">
-			<div class="col-12 col-md-3 text-center text-md-start">
-				<span id="date"></span>
-			</div>
-			<div class="col-md-5 d-none d-md-block"></div>
-			<div class="col-12 col-md-4">
+		<div class="row g-2 mt-4 mb-4">
+			<div class="col-12 col-md-6">
 				<div class="input-group">
-					<input class="form-control" id="SAVE_ASSET" name="SAVE_ASSET" placeholder="충전금액">
-					<button class="btn btn-outline-info" id="SAVE_BUTTON" onclick="fn_saveAsset();">충전</button>
+					<span class="input-group-text">현재 잔액</span>
+					<input class="form-control" id="CURRENT_BALANCE" name="CURRENT_BALANCE" style="text-align: right; font-weight: bold;" disabled placeholder="0원">
+				</div>
+			</div>
+			<div class="col-12 col-md-6">
+				<div class="input-group">
+					<input class="form-control" id="SAVE_ASSET" name="SAVE_ASSET" placeholder="충전할 금액">
+					<button class="btn btn-outline-primary" id="SAVE_BUTTON" onclick="fn_saveAsset();">충전</button>
 				</div>
 			</div>
 		</div>
-
-		<div class="row g-2 mb-4 align-items-center">
-			<div class="col-12 col-md-3">
-				<div class="input-group">
-					<select class="form-select" id="select-account" aria-label="Default select example" style="max-width: 90px;">
-	  					<option value="I">충전</option>
-	  					<option value="O" selected>지출</option>
-					</select>
-					<select class="form-select" id="CATEGORY_NM" aria-label="Default select example" style="max-width: 90px;">
-	  					<th:block th:each="cg : ${cg}">
-	  						<option th:value="${cg.CATEGORY_ID}">[[${cg.CATEGORY_NM}]]</option>
-	  					</th:block>
-					</select>
-					<input class="form-control" id="AMOUNT" name="AMOUNT" placeholder="사용금액">
-				</div>
+		
+		<div class="row g-2 mb-5 align-items-end">
+			<div class="col-6 col-md-2">
+				<label for="insertDate" class="form-label small text-muted">거래일자</label>
+				<input type="date" class="form-control" id="insertDate">
 			</div>
-			<div class="col-12 col-md-5">
-				<div class="input-group">
-					<input class="form-control" id="DESCRIPTION" name="DESCRIPTION" placeholder="거래상세내용">
-					<button class="btn btn-outline-info" onclick="fn_write();">등록</button>
-				</div>
+			<div class="col-6 col-md-2">
+				<label for="select-account" class="form-label small text-muted">유형</label>
+				<select class="form-select" id="select-account">
+  					<option value="I">충전</option>
+  					<option value="O" selected>지출</option>
+				</select>
+			</div>
+			<div class="col-6 col-md-2">
+				<label for="CATEGORY_NM" class="form-label small text-muted">카테고리</label>
+				<select class="form-select" id="CATEGORY_NM">
+  					<th:block th:each="cg : ${cg}">
+  						<option th:value="${cg.CATEGORY_ID}">[[${cg.CATEGORY_NM}]]</option>
+  					</th:block>
+				</select>
+			</div>
+			<div class="col-6 col-md-2">
+				<label for="AMOUNT" class="form-label small text-muted">금액</label>
+				<input class="form-control" id="AMOUNT" name="AMOUNT" placeholder="금액">
 			</div>
 			<div class="col-12 col-md-4">
+				<label for="DESCRIPTION" class="form-label small text-muted">적요</label>
 				<div class="input-group">
-					<span class="input-group-text">남은금액</span>
-					<input class="form-control" id="CURRENT_BALANCE" name="CURRENT_BALANCE" style="text-align: right;" disabled placeholder="남은금액">
+					<input class="form-control" id="DESCRIPTION" name="DESCRIPTION" placeholder="적요를 입력하세요">
+					<button class="btn btn-primary" onclick="fn_write();" style="min-width: 80px;">등록</button>
 				</div>
 			</div>
-		</div>
-		<div>
+			<div class="d-flex justify-content-end mb-2">
+				<div class="input-group" style="width: auto;">
+					<span class="input-group-text">조회월</span>
+					<input type="month" class="form-control" id="searchDate">
+					<button class="btn btn-secondary" type="button" onclick="fn_search();">조회</button>
+				</div>
+			</div>
 			<table class="table table-bordered table-hover table-sm" style="width: 100%; text-align: center;">
 				<thead class="table-light">
 					<tr>
 						<th style="white-space: nowrap;">카테고리</th>
 						<th style="white-space: nowrap;">사용 금액</th>
-						<th>거래 상세 내용</th>
+						<th>적요</th>
 						<th style="white-space: nowrap;">거래 일자</th>
-						<th class="d-none d-md-table-cell">작성 일자</th>
 						<th style="white-space: nowrap;">관리</th>
 					</tr>
 				</thead>
@@ -183,7 +192,6 @@
 							<td style="vertical-align: middle;" th:text="|${#numbers.formatInteger(list.AMOUNT, 3, 'COMMA')}원|"></td>
 							<td style="word-break: break-all; vertical-align: middle;" th:text="${list.DESCRIPTION}"></td>
 							<td style="vertical-align: middle; white-space: nowrap;" th:text="${list.ACCOUNT_DATE}"></td>
-							<td class="d-none d-md-table-cell" th:text="${list.CREATE_DT}"></td>
 							<td style="vertical-align: middle;">
 								<th:block th:if="${list.ACCOUNT_TYPE != 'S'}">
 									<button type="button" class="btn btn-outline-info btn-sm" th:data-account-id="${list.ACCOUNT_ID}" th:data-asset-id="${list.ASSET_ID}" th:data-amount="${list.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button>
@@ -313,7 +321,17 @@
 	let lastAccountId = null;
 	let isLoading = false;
 	let hasNext = true;
-
+	function fn_search() {
+		lastAccountDate = null;
+		lastAccountId = null;
+		hasNext = true;
+		isLoading = false;
+		$(".account-list").empty();
+		fetchPosts();
+		
+		const target = document.getElementById('scroll-anchor');
+		if(target) observer.observe(target);
+	}
 	async function fetchPosts() {
 	    if (isLoading || !hasNext) return;
 
@@ -323,7 +341,8 @@
 			const sendData = {
 	            size: 5,
 	            lastAccountDate: lastAccountDate,
-	            lastAccountId: lastAccountId
+	            lastAccountId: lastAccountId,
+				searchDate: $('#searchDate').val()
 	        };
 
 	        const response = await axios.post('/hoit/accountBook/scrollList.do', sendData);
@@ -356,7 +375,6 @@
             content += `<td style="vertical-align: middle;">${formatter.format(item.AMOUNT)}원</td>`;
             content += `<td style='word-break: break-all; vertical-align: middle;'>${item.DESCRIPTION}</td>`;
             content += `<td style='vertical-align: middle; white-space: nowrap;'>${item.ACCOUNT_DATE}</td>`;
-            content += `<td class='d-none d-md-table-cell'>${item.CREATE_DT}</td>`;
            	if(item.ACCOUNT_TYPE != 'S') {
    	            content += `<td style='vertical-align: middle;'><button type="button" class="btn btn-outline-info btn-sm" data-account-id="${item.ACCOUNT_ID}" data-asset-id="${item.ASSET_ID}" data-amount="${item.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button></td>`;
    	        }
