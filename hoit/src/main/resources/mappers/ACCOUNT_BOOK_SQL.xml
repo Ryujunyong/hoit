@@ -32,7 +32,7 @@
 		ON A.CATEGORY_ID = B.CATEGORY_ID
 		WHERE 1=1
 		<if test="searchDate != null and searchDate != ''">
-			AND TO_CHAR(A.ACCOUNT_DATE, 'YYYY-MM') = #{searchDate}
+			AND DATE_FORMAT(A.ACCOUNT_DATE, '%Y-%m') = #{searchDate}
 		</if>
 		<if test="lastAccountDate != null and lastAccountDate != ''">
 			AND (A.ACCOUNT_DATE &lt; #{lastAccountDate} OR (A.ACCOUNT_DATE = #{lastAccountDate} AND A.ACCOUNT_ID &lt; #{lastAccountId}))
