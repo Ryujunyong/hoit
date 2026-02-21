@@ -89,7 +89,7 @@
 		  , #{ASSET_ID}
 		  , #{CATEGORY_ID}
 		  , #{ACCOUNT_TYPE}
-		  , DATE_FORMAT(NOW(), '%Y-%m-%d')
+		  , #{ACCOUNT_DATE}
 		  , #{AMOUNT}
 		  , #{DESCRIPTION}
 		  , NOW()

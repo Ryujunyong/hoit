@@ -44,6 +44,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation("org.json:json:20251224")
+	implementation("org.apache.poi:poi:5.5.1")
+	implementation("org.apache.poi:poi-ooxml:5.5.1")
 }
 
 tasks.named('test') {

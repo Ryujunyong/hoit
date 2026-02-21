@@ -1,13 +1,17 @@
 package com.hoit.accountbook.controller;
 
-import java.io.PrintWriter;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,17 +21,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoit.accountbook.service.AccountBookService;
 import com.hoit.category.service.CategoryService;
 import com.hoit.common.CursorResponse;
 import com.hoit.common.PageVO;
-import com.hoit.common.Pagination;
 import com.hoit.common.PagingSetting;
+import com.hoit.util.ExcelUpload;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 
 @Controller
 @RequestMapping(value = "/hoit/accountBook")
@@ -59,35 +65,7 @@ public class AccountBookController {
 		return "accountBook/list";
 	}
 	
-//	@PostMapping(value = "pagingAjax.do")
-//	@ResponseBody
-//	public void pagingAjax(@RequestParam Map<String, Object> param, HttpServletResponse response, @RequestBody String filterJSON) throws Exception {
-//
-//	    JSONObject obj = new JSONObject();
-//	    response.setContentType("text/html; charset=UTF-8");
-//	    PrintWriter out = response.getWriter();
-//
-//	    try {
-//	        ObjectMapper mapper = new ObjectMapper();
-//	        PageVO page = mapper.readValue(filterJSON, new TypeReference<PageVO>(){});
-//	        
-//			int tot = accountBookService.accountBookCnt();
-//			Map<String, Object> commonPaging = pageingSetting.CommonPaging(page, tot);
-//			
-//			param.put("recordCountPerPage", commonPaging.get("recordCountPerPage"));
-//			param.put("firstIndex", commonPaging.get("firstIndex"));
-//			
-//			obj.put("list", accountBookService.accountBookList(param));
-//	        obj.put("resultCnt", tot);
-//	        obj.put("totalPageCnt", commonPaging.get("totalPageCnt"));
-//	        obj.put("pageVO", mapper.writeValueAsString(commonPaging.get("pageVO")));
-//
-//	    } catch (Exception e) {
-//	        obj.put("res", "error");
-//	    }
-//	    out.print(obj);
-//	}
-	
+	@SuppressWarnings("rawtypes")
 	@PostMapping(value = "/scrollList.do")
 	@ResponseBody
 	public CursorResponse scrollList(@RequestBody Map<String, Object> param) {
@@ -130,4 +108,41 @@ public class AccountBookController {
 		return accountBookService.getCategoryMonthlyAmount(param);
 	}
 	
+	@PostMapping(value = "/excelup.do")
+	@ResponseBody
+	public String excelup(MultipartHttpServletRequest request) throws Exception {
+		
+		MultipartFile excelFile = request.getFile("excelFile");
+		if (excelFile == null || excelFile.isEmpty()) {
+			return "파일이 없습니다.";
+		}
+
+		// 1. 파일 업로드
+		String filePath = setExcelUrl(excelFile, request);
+		File file = new File(filePath);
+
+		// 2. 엑셀 읽기
+		String[] cellTitle = {"거래일시", "입금금액", "출금금액", "적요내용"};
+		ExcelUpload excelUpload = new ExcelUpload();
+		List<Map<String, Object>> list = excelUpload.upExcel(filePath, cellTitle);
+		System.out.println(list);
+		
+		return null;
+//		int cnt = 0;
+//		return cnt + "건 저장 완료";
+	}
+	
+	public String setExcelUrl( MultipartFile item, HttpServletRequest request ) throws Exception{
+		String uploadFileName = item.getOriginalFilename();								//업로드된 파일명
+    	String savePath = request.getSession().getServletContext().getRealPath("/");	//저장경로
+
+	    String fileName = com.hoit.util.UniqueKey.getKeyByDateFormat() +"."+ uploadFileName.substring(uploadFileName.lastIndexOf(".")+1); //파일명 생성
+    	String filePath = "excel" + fileName;		//DB 저장용 파일경로
+    	String fileFullPath = savePath + filePath;					//저장전체경로
+
+    	File uploadFile = new File(fileFullPath);
+    	item.transferTo(uploadFile);
+
+    	return fileFullPath;
+	}
 }

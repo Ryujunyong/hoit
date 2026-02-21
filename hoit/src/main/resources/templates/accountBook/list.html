@@ -29,6 +29,7 @@
 		const sendData = {
 				AMOUNT: cleanNumber,
 				ACCOUNT_TYPE: $('#select-account').val(),
+				ACCOUNT_DATE: $('#insertDate').val(),
 				DESCRIPTION: description,
 				CATEGORY_ID: $('#CATEGORY_NM').val()
 		}
@@ -118,6 +119,32 @@
           });
     }
 	
+    function fn_uploadExcel() {
+        const fileInput = document.getElementById('excelFile');
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('excelFile', file);
+
+        axios.post('/hoit/accountBook/excelup.do', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+        .then(res => {
+            //alert(res.data);
+            console.log(res)
+            location.reload();
+        })
+        .catch(err => {
+            alert('업로드 실패: ' + err);
+        })
+        .finally(() => {
+        	fileInput.value = '';
+        });
+    }
+
 </script>
 <body>
     <h1 class="text-center" style="margin-top: 50px;">가계부</h1>
@@ -169,6 +196,8 @@
 				</div>
 			</div>
 			<div class="d-flex justify-content-end mb-2">
+				<input type="file" id="excelFile" style="display:none;" onchange="fn_uploadExcel()">
+				<button class="btn btn-success me-2" onclick="$('#excelFile').click();">엑셀 업로드</button>
 				<div class="input-group" style="width: auto;">
 					<span class="input-group-text">조회월</span>
 					<input type="month" class="form-control" id="searchDate">
@@ -255,68 +284,6 @@
 	$('#select-account').on('change', function() {
 		calcTotal();
 	});
-	/*
-	function fn_page(pageNo) {
-	    var submitObj = new Object();
-	    submitObj.pageIndex = pageNo;
-	    axios.post('/hoit/accountBook/pagingAjax.do', submitObj)
-	    .then(res => {
-	        var data = res.data;
-	        var result = new Array;
-	        result = data.list;
-	        var pageVO = JSON.parse(data.pageVO);
-	        var endPage = pageVO.endPage;
-	        var startData = pageVO.startData;
-	        var startButtonData = pageVO.startData - 1;
-	        var endData = pageVO.endData;
-	        var endButtonData = pageVO.pageIndex + 1;
-	        var pageIndex = pageVO.pageIndex;
-	        var resultCnt = data.resultCnt;
-	        var totalPageCnt = data.totalPageCnt;
-	        var recordCountPerPage = pageVO.recordCountPerPage;
-	        var content = '';
-	        var content2 = '';
-	        console.log(`%c ********** 정상응답@@@@ ${JSON.stringify(pageVO, null, 2)} **********`, `background:seagreen;color:white`);
-	        $.each(result, function(index, item) {
-	            content += `<tr>`;
-	            content += `<td style='vertical-align: middle;' th:text='${item.CATEGORY_NM}'></td>`
-	            content += `<td style="vertical-align: middle;">${formatAmount(item.AMOUNT)}원</td>`;
-	            content += `<td style='word-break: break-all; vertical-align: middle;' th:text='${item.DESCRIPTION}'></td>`
-	            content += `<td style='vertical-align: middle; white-space: nowrap;' th:text='${item.ACCOUNT_DATE}'></td>`
-	            content += `<td class='d-none d-md-table-cell' th:text='${item.CREATE_DT}'></td>`
-	            content += `<td><button type='button' id='updateBtn' onclick='fn_updateUser(this);'>수정</button></td>`;
-	            content += `<td><button type='button' id='deleteBtn' onclick='fn_delete("${item.sabun}");'>삭제</button></td>`;
-	            content += `</tr>`;
-	        });
-	        $(".account-list").html(content);
-	        
-	        content2 = `<div class="d-flex justify-content-center position-relative w-100">`;
-	        content2 += `<nav aria-label="Page navigation"><ul class="pagination mb-0">`;
-	        
-	        if(pageVO.prev) {
-	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(1); return false;"><i class="fas fa-angle-double-left"></i></a></li>`;
-	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${startData - 1}); return false;"><i class="fas fa-angle-left"></i></a></li>`;
-	        }
-	        for(var num=startData; num<=endData; num++) {
-	            if(num == pageIndex) {
-	                content2 += `<li class="page-item active"><span class="page-link">${num}</span></li>`;
-	            } else {
-	                content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${num}); return false;">${num}</a></li>`;
-	            }
-	        }
-	        if(pageVO.next) {
-	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${endButtonData}); return false;"><i class="fas fa-angle-right"></i></a></li>`;
-	            content2 += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="fn_page(${pageVO.endPage}); return false;"><i class="fas fa-angle-double-right"></i></a></li>`;
-	        }
-	        content2 += `</ul></nav>`;
-	        content2 += `<div class="position-absolute end-0 top-50 translate-middle-y"><button class='btn_excel' type="button" onclick="location.href='/excelDown.do'"></button></div>`;
-	        content2 += `</div>`;
-	        $(".account-list-paging").html(content2);
-	    })
-	    .catch(e => {
-	    })
-	}
-	*/
 	let lastAccountDate = null;
 	let lastAccountId = null;
 	let isLoading = false;
@@ -395,6 +362,14 @@
 	        }
 	    });
 	}, observerOptions);
+	$('#select-account').change(() => {
+		if ($('#select-account').val() == 'I') {
+			$('#CATEGORY_NM').prop('disabled', true);
+		} else {
+			$('#CATEGORY_NM').prop('disabled', false);
+		}
+	});
+	
 	</script>
 </body>
 </html>
