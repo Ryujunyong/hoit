@@ -11,6 +11,24 @@
 			 , PRIORITY
 			 , REG_DT
 		FROM T_KEYWORD
+		<where>
+			<if test="KEYWORD_NM != null and KEYWORD_NM != ''">
+				AND #{KEYWORD_NM} LIKE CONCAT('%', KEYWORD_NM, '%')
+			</if>
+		</where>
+	</select>
+	<select id="getKeyword" resultType="map" parameterType="map">
+		SELECT KEYWORD_ID
+			 , CATEGORY_ID
+			 , KEYWORD_NM
+		FROM T_KEYWORD
+		<where>
+			<if test="KEYWORD_NM != null and KEYWORD_NM != ''">
+				AND #{KEYWORD_NM} LIKE CONCAT('%', KEYWORD_NM, '%')
+			</if>
+		</where>
+		ORDER BY PRIORITY DESC
+		LIMIT 1
 	</select>
 	<select id="selectKeywordTotCnt" resultType="int">
 		SELECT COUNT(*)

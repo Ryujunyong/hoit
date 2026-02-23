@@ -3,6 +3,9 @@ package com.hoit.accountbook.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 import com.hoit.common.CursorRequest;
 import com.hoit.common.CursorResponse;
 
@@ -14,9 +17,11 @@ public interface AccountBookService {
 	void writeAccountBook(Map<String, Object> map);
 	void edieAccountBook(Map<String, Object> map);
 	void deleteAccountBook(Map<String, Object> map);
+	void editCategory(Map<String, Object> map);
 	Map<String, Object> getCurrentMoney();
 	Map<String, Object> getTotalAssets(Map<String, Object> map);
 	void saveAsset(Map<String, Object> map);
 	Map<String, Object> getMonthlyAmount(Map<String, Object> map);
 	List<Map<String, Object>> getCategoryMonthlyAmount(Map<String, Object> map);
+	int excelUpload(MultipartHttpServletRequest request, MultipartFile excelFile) throws Exception;
 }

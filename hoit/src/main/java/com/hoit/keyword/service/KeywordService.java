@@ -5,7 +5,8 @@ import java.util.Map;
 
 public interface KeywordService {
 
-	List<?> selectKeywordList();
+	List<Map<String, Object>> selectKeywordList();
+	Map<String, Object> getKeyword(Map<String, Object> map);
 	int selectKeywordTotCnt();
 	void writeKeyword(Map<String, Object> map);
 	void updateKeyword(Map<String, Object> map);

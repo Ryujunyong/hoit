@@ -55,49 +55,25 @@
 			alert('에러'+e);
 		});
 	}
-	/*
-	function fn_editTotalMoney() {
-		fetch('/hoit/accountBook/editTotalMoney_submit.do', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json;charset=utf-8',
-			},
-			body: JSON.stringify({
-				ACCOUNT_ID: 'TEST',
-				TOTAL_MONEY: parseInt(data)
-			}),
-		})
+	
+	function fn_updateCate(val) {
+		const $tr = $(val).closest('tr');
+		const cateId = $tr.find('select').val();
+		
+		let sendData = {
+    			"ACCOUNT_ID": $(val).attr('data-account-id'),
+    			"CATEGORY_ID": cateId
+    	}
+		
+		axios.post('/hoit/accountBook/updateCategory_submit.do', sendData)
 		.then(res => {
-			if (!res.ok) {
-				throw new Error('에러 발생!');
-			}
+			alert("수정되었습니다.");
 		})
 		.catch(e => {
-			alert('에러'+e);
+			console.log(e);
 		});
 	}
 	
-	function fn_chargeCashBack() {
-		fetch('/hoit/accountBook/chargeCashBack_submit.do', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json;charset=utf-8',
-			},
-			body: JSON.stringify({
-				CASHBACK_AMOUNT: $('#CASHBACK_AMOUNT').val()
-			}),
-		})
-		.then(res => {
-			if (!res.ok) {
-				throw new Error('에러 발생!');
-			}
-			location.reload();
-		})
-		.catch(e => {
-			alert('에러'+e);
-		});
-	}
-	*/
     function fn_deleteAcBook(val) {
     	
     	let sendData = {
@@ -122,19 +98,21 @@
     function fn_uploadExcel() {
         const fileInput = document.getElementById('excelFile');
         const file = fileInput.files[0];
-        if (!file) return;
-
+        let lastDot = file.name.lastIndexOf('.');
+        let extension = file.name.substring(lastDot, file.name.length);
+        if (!file || extension != '.xlsx') {
+        	alert("xlsx 확장자만 업로드 가능합니다.");
+        	return;
+        }
         const formData = new FormData();
         formData.append('excelFile', file);
-
         axios.post('/hoit/accountBook/excelup.do', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
         })
         .then(res => {
-            //alert(res.data);
-            console.log(res)
+            alert(res.data);
             location.reload();
         })
         .catch(err => {
@@ -179,9 +157,7 @@
 			<div class="col-6 col-md-2">
 				<label for="CATEGORY_NM" class="form-label small text-muted">카테고리</label>
 				<select class="form-select" id="CATEGORY_NM">
-  					<th:block th:each="cg : ${cg}">
-  						<option th:value="${cg.CATEGORY_ID}">[[${cg.CATEGORY_NM}]]</option>
-  					</th:block>
+					<option th:each="cg : ${cg}" th:value="${cg.CATEGORY_ID}">[[${cg.CATEGORY_NM}]]</option>
 				</select>
 			</div>
 			<div class="col-6 col-md-2">
@@ -217,13 +193,23 @@
 				<tbody class="account-list">
 					<th:block th:if="${!#lists.isEmpty(list)}">
 						<tr th:each="list : ${list}" th:data-account-id="${list.ACCOUNT_ID}" th:data-account-date="${list.ACCOUNT_DATE}">
-							<td style="vertical-align: middle;" th:text="${list.CATEGORY_NM}"></td>
+							<td style="vertical-align: middle;">
+							<th:block th:if="${list.ACCOUNT_TYPE != 'S'}">
+								<select class="form-select">
+									<option value="">선택</option>
+									<option th:each="cg : ${cg}" th:value="${cg.CATEGORY_ID}" th:text="${cg.CATEGORY_NM}" th:selected="${cg.CATEGORY_NM == list.CATEGORY_NM}"></option>
+								</select> 
+							</th:block>
+							</td>
 							<td style="vertical-align: middle;" th:text="|${#numbers.formatInteger(list.AMOUNT, 3, 'COMMA')}원|"></td>
 							<td style="word-break: break-all; vertical-align: middle;" th:text="${list.DESCRIPTION}"></td>
 							<td style="vertical-align: middle; white-space: nowrap;" th:text="${list.ACCOUNT_DATE}"></td>
 							<td style="vertical-align: middle;">
 								<th:block th:if="${list.ACCOUNT_TYPE != 'S'}">
-									<button type="button" class="btn btn-outline-info btn-sm" th:data-account-id="${list.ACCOUNT_ID}" th:data-asset-id="${list.ASSET_ID}" th:data-amount="${list.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button>
+									<div class="d-flex flex-column flex-md-row gap-1 justify-content-center">
+										<button type="button" class="btn btn-outline-info btn-sm" th:data-account-id="${list.ACCOUNT_ID}" onclick="fn_updateCate(this)">수정</button>
+										<button type="button" class="btn btn-outline-info btn-sm" th:data-account-id="${list.ACCOUNT_ID}" th:data-asset-id="${list.ASSET_ID}" th:data-amount="${list.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button>
+									</div>
 								</th:block>
 							</td>
 						</tr>
@@ -296,8 +282,14 @@
 		$(".account-list").empty();
 		fetchPosts();
 		
-		const target = document.getElementById('scroll-anchor');
-		if(target) observer.observe(target);
+		// 조회 후 스크롤 감지 대상을 재등록하여 강제로 트리거 시도
+		setTimeout(() => {
+			const target = document.getElementById('scroll-anchor');
+			if(target) {
+				observer.unobserve(target);
+				observer.observe(target);
+			}
+		}, 100);
 	}
 	async function fetchPosts() {
 	    if (isLoading || !hasNext) return;
@@ -332,18 +324,27 @@
 	        isLoading = false;
 	    }
 	}
-
 	function renderPosts(list) {
+		const cateList = [[${cg}]];
 		let content = '';
 	    list.forEach(item => {
-	    	console.log(item.ACCOUNT_TYPE)
+	    	let options = `<option value='' ${item.CATEGORY_NM == '' ? 'selected' : ''}>선택</option>`;
+	    	cateList.forEach(cate => {
+	    		const selected = (cate.CATEGORY_NM == item.CATEGORY_NM) ? 'selected' : '';
+	    		options += `<option value='${cate.CATEGORY_ID}' ${selected}>${cate.CATEGORY_NM}</option>`;
+	    	});
         	content += `<tr>`;
-            content += `<td style='vertical-align: middle;'>${item.CATEGORY_NM}</td>`;
+            content += `<td style='vertical-align: middle;'><select class='form-select'>${options}</select></td>`;
             content += `<td style="vertical-align: middle;">${formatter.format(item.AMOUNT)}원</td>`;
             content += `<td style='word-break: break-all; vertical-align: middle;'>${item.DESCRIPTION}</td>`;
             content += `<td style='vertical-align: middle; white-space: nowrap;'>${item.ACCOUNT_DATE}</td>`;
            	if(item.ACCOUNT_TYPE != 'S') {
-   	            content += `<td style='vertical-align: middle;'><button type="button" class="btn btn-outline-info btn-sm" data-account-id="${item.ACCOUNT_ID}" data-asset-id="${item.ASSET_ID}" data-amount="${item.AMOUNT}" onclick="fn_deleteAcBook(this)">삭제</button></td>`;
+   	            content += `<td style='vertical-align: middle;'>`;
+   	            content += `<div class="d-flex flex-column flex-md-row gap-1 justify-content-center">`;
+   	         	content += `<button type='button' class='btn btn-outline-info btn-sm' data-account-id='${item.ACCOUNT_ID}' onclick='fn_updateCate(this)'>수정</button>`;
+	            content += `<button type='button' class='btn btn-outline-info btn-sm' data-account-id='${item.ACCOUNT_ID}' data-asset-id='${item.ASSET_ID}' data-amount='${item.AMOUNT}' onclick='fn_deleteAcBook(this)'>삭제</button>`;
+   	            content += `</div>`;
+   	            content += `</td>`;
    	        }
 	        content += `</tr>`;
 	    });

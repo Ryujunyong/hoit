@@ -26,8 +26,8 @@ public class ExcelUpload  {
 		try (Workbook wb = WorkbookFactory.create(file, password)) {
 			Sheet sheet = wb.getSheetAt(0);							//시트 가져오기
 			
-			int rows = sheet.getPhysicalNumberOfRows();					//Row 갯수 가져오기
-			int startRow = fileurl.endsWith("xlsx") ? 4 : 1;
+			int rows = sheet.getLastRowNum() + 1;					//Row 갯수 가져오기
+			int startRow = fileurl.toLowerCase().endsWith("xlsx") ? 4 : 1;
 			
 			// 타이틀 매핑
 			Map<Integer, String> titleMap = new HashMap<>();

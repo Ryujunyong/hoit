@@ -16,8 +16,12 @@ public class KeywordServiceImpl implements KeywordService {
 	private KeywordMapper keywordMapper;
 
 	@Override
-	public List<?> selectKeywordList() {
+	public List<Map<String, Object>> selectKeywordList() {
 		return keywordMapper.selectKeywordList();
+	}
+	@Override
+	public Map<String, Object> getKeyword(Map<String, Object> map) {
+		return keywordMapper.getKeyword(map);
 	}
 
 	@Override

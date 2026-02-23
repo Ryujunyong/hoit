@@ -8,7 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface KeywordMapper {
 	// 키워드 조회
-	List<?> selectKeywordList();
+	List<Map<String, Object>> selectKeywordList();
+	// 키워드 가져오기
+	Map<String, Object> getKeyword(Map<String, Object> map);
 	// 키워드 갯 수 조회
 	int selectKeywordTotCnt();
 	// 키워드 등록

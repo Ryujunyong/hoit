@@ -10,9 +10,9 @@
 			 , A.AMOUNT
 			 , A.DESCRIPTION
 			 , A.CREATE_DT
-			 , B.CATEGORY_NM
+			 , IFNULL(B.CATEGORY_NM, '') AS CATEGORY_NM
 		FROM T_ACCOUNT_BOOK A
-		INNER JOIN T_CATEGORY B
+		LEFT JOIN T_CATEGORY B
 		ON A.CATEGORY_ID = B.CATEGORY_ID
 		ORDER BY A.ACCOUNT_DATE DESC, A.ACCOUNT_ID DESC
 		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
@@ -26,9 +26,9 @@
 			 , A.AMOUNT
 			 , A.DESCRIPTION
 			 , A.CREATE_DT
-			 , B.CATEGORY_NM
+			 , IFNULL(B.CATEGORY_NM, '') AS CATEGORY_NM
 		FROM T_ACCOUNT_BOOK A
-		INNER JOIN T_CATEGORY B
+		LEFT JOIN T_CATEGORY B
 		ON A.CATEGORY_ID = B.CATEGORY_ID
 		WHERE 1=1
 		<if test="searchDate != null and searchDate != ''">
@@ -49,7 +49,7 @@
 	<select id="accountBookCnt" resultType="int">
 		SELECT COUNT(*)
 		FROM T_ACCOUNT_BOOK A
-		INNER JOIN T_CATEGORY B
+		LEFT JOIN T_CATEGORY B
 		ON A.CATEGORY_ID = B.CATEGORY_ID
 	</select>
 	
@@ -58,56 +58,6 @@
 		FROM T_ASSETS
 		WHERE SUBSTR(ASSET_AT, 1, 7) = #{ASSET_AT}
 	</select>
-	
-	<insert id="saveAsset" parameterType="map">
-		INSERT INTO T_ASSETS
-		(
-			ASSET_ID
-		  , ASSET_TYPE
-		  , CURRENT_BALANCE
-		  , ASSET_AT
-		) VALUES (
-			#{ASSET_ID}
-		  , #{ASSET_TYPE}
-		  , #{CURRENT_BALANCE}
-		  , SYSDATE()
-		);  
-	</insert>
-	<insert id="writeAccountBook" parameterType="map">
-		INSERT INTO T_ACCOUNT_BOOK
-		(
-			ACCOUNT_ID
-		  , ASSET_ID
-		  , CATEGORY_ID
-		  , ACCOUNT_TYPE
-		  , ACCOUNT_DATE
-		  , AMOUNT
-	      , DESCRIPTION
-		  , CREATE_DT
-		) VALUE (
-			#{ACCOUNT_ID}
-		  , #{ASSET_ID}
-		  , #{CATEGORY_ID}
-		  , #{ACCOUNT_TYPE}
-		  , #{ACCOUNT_DATE}
-		  , #{AMOUNT}
-		  , #{DESCRIPTION}
-		  , NOW()
-		);  
-	</insert>
-	<update id="renewAsset" parameterType="map">
-		UPDATE T_ASSETS
-		SET CURRENT_BALANCE = #{CURRENT_BALANCE}
-		WHERE ASSET_ID = #{ASSET_ID};
-	</update>
-	<delete id="deleteAccountBook" parameterType="map">
-		DELETE FROM T_ACCOUNT_BOOK
-		WHERE ACCOUNT_ID = #{ACCOUNT_ID}
-	</delete>
-	<delete id="deleteAsset" parameterType="map">
-		DELETE FROM T_ASSETS
-		WHERE ASSET_ID = #{ASSET_ID}
-	</delete>
 	
 	<select id="getMonthlyAmount" parameterType="map" resultType="map">
 		SELECT
@@ -152,4 +102,60 @@
 		</if>
 		GROUP BY B.CATEGORY_NM
 	</select>
+	
+	<insert id="saveAsset" parameterType="map">
+		INSERT INTO T_ASSETS
+		(
+			ASSET_ID
+		  , ASSET_TYPE
+		  , CURRENT_BALANCE
+		  , ASSET_AT
+		) VALUES (
+			#{ASSET_ID}
+		  , #{ASSET_TYPE}
+		  , #{CURRENT_BALANCE}
+		  , SYSDATE()
+		);  
+	</insert>
+	<insert id="writeAccountBook" parameterType="map">
+		INSERT INTO T_ACCOUNT_BOOK
+		(
+			ACCOUNT_ID
+		  , ASSET_ID
+		  , CATEGORY_ID
+		  , ACCOUNT_TYPE
+		  , ACCOUNT_DATE
+		  , AMOUNT
+	      , DESCRIPTION
+		  , CREATE_DT
+		) VALUE (
+			#{ACCOUNT_ID}
+		  , #{ASSET_ID}
+		  , #{CATEGORY_ID}
+		  , #{ACCOUNT_TYPE}
+		  , #{ACCOUNT_DATE}
+		  , #{AMOUNT}
+		  , #{DESCRIPTION}
+		  , NOW()
+		);  
+	</insert>
+	<update id="editCategory" parameterType="map">
+		UPDATE T_ACCOUNT_BOOK
+		SET CATEGORY_ID = #{CATEGORY_ID}
+		WHERE ACCOUNT_ID = #{ACCOUNT_ID}
+	</update>
+	<update id="renewAsset" parameterType="map">
+		UPDATE T_ASSETS
+		SET CURRENT_BALANCE = #{CURRENT_BALANCE}
+		WHERE ASSET_ID = #{ASSET_ID};
+	</update>
+	<delete id="deleteAccountBook" parameterType="map">
+		DELETE FROM T_ACCOUNT_BOOK
+		WHERE ACCOUNT_ID = #{ACCOUNT_ID}
+	</delete>
+	<delete id="deleteAsset" parameterType="map">
+		DELETE FROM T_ASSETS
+		WHERE ASSET_ID = #{ASSET_ID}
+	</delete>
+	
 </mapper>
